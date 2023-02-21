@@ -138,14 +138,15 @@ dumpfile(char *filename)
 			memmove(buf, buf+count, bufdata-count);
 			bufdata -= count;
 		}
-		len = fread(buf + bufdata, sizeof(char), count + rextra - bufdata, f);
-		if (len <= 0) break;
-		bufdata += len;
-		size_t i;
+		ssize_t nread = fread(buf + bufdata, sizeof(char), count + rextra - bufdata, f);
+		if (nread < 0) break;
+		bufdata += nread;
+		if (bufdata == 0) break;
 		/* Fill the unused bytes with 0. */
-		for (i = len;  i < count;  i++)
-			buf[i] = 0;
-
+		if (bufdata < count)
+			memset(&buf[bufdata], 0, count-bufdata);
+		len = bufdata;
+		if (len > count) len = count;
 		/* Duplicate of the previous line? */
 		if (!verbose && addr != firstaddr && 
 				len == last_len && eqbuf(buf, lastbuf, len)) {
@@ -158,15 +159,15 @@ dumpfile(char *filename)
 		didstar = 0;
 		last_len = len;
 		/* Remember the current buffer. */
-		for (i = 0;  i < len;  i++)
-			lastbuf[i] = buf[i];
+		memcpy(lastbuf, buf, len);
 
 		/* Print the address, in the address format. */
 		printbuf(&aformat, (u8*) &addr, sizeof(addr), sizeof(addr));
 
 		/* Print the data, in all formats. */
-		for (i = 0;  i < nformat;  i++)
-			printbuf(&format[i], (u8*) buf, count, len);
+		int fx;
+		for (fx = 0;  fx < nformat;  fx++)
+			printbuf(&format[fx], (u8*) buf, count, len);
 	}
 	/* Print the final address. */
 	printbuf(&aformat, (u8*) &addr, sizeof(addr), sizeof(addr));
