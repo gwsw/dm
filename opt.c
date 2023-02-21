@@ -353,6 +353,13 @@ option(char *s)
 				 * display C style mnemonics.
 				 */
 				zwidth = width = 2;
+			if ((flags & (UTF_8)) &&
+				width < 2)
+				/*
+				 * Need at least 2 printing positions to
+				 * display (double-wide) UTF-8 chars.
+				 */
+				zwidth = width = 2;
 		}
 
 		/*
@@ -496,7 +503,7 @@ adjcol()
 				width8 = 8 / f->size;
 				f->width = (maxwidth8 / width8) - 
 						strlen(f->inter);
-				if (strlen(f->inter) == 0 && f->width > 1)
+				if (strlen(f->inter) == 0 && f->width > 1 && !(f->flags & UTF_8))
 				{
 					/*
 					 * Ugly kludge to handle characters:
