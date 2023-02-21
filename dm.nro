@@ -24,7 +24,8 @@ thru the file rather than seeking.
 Numbers entered on the command line
 are decimal by default, but may be preceeded by 0 to make them octal,
 or 0x to make them hexadecimal.
-In addition, a number may be followed by a "k" to multiply it by 1024.
+In addition, a number may be followed by a "k" to multiply it by 1024, or
+by "m" to multiply it by 1024*1024, or by "g" to multiply it by 1024*1024*1024.
 .PP
 Each format option begins with either a minus sign or a plus sign.
 If a format begins with a plus sign, it is displayed on the same

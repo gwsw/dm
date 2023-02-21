@@ -583,12 +583,19 @@ getlong(char **ss)
 		usage("missing number");
 
 	/*
-	 * Followed by "k" means multiply by 1024.
+	 * Followed by "k" means multiply by 1024,
+	 * "m" means multiply by 1024*1024, and
+	 * "g" means multiply by 1024*1024*1024.
 	 */
-	if (*s == 'k' || *s == 'K')
-	{
+	if (*s == 'k' || *s == 'K') {
 		s++;
 		n *= 1024;
+	} else if (*s == 'm' || *s == 'M') {
+		s++;
+		n *= 1024*1024;
+	} else if (*s == 'g' || *s == 'G') {
+		s++;
+		n *= 1024*1024*1024;
 	}
 	*ss = s;
 	return (n);
