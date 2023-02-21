@@ -1,0 +1,166 @@
+.TH DM 1
+.SH NAME
+dm \- dump a file
+.SH SYNOPSIS
+.B "dm [-n#] [-v] [-f#] [-F#] [--default] [[-+]format]... [file]..."
+.SH DESCRIPTION
+.I Dm
+dumps a file in one or more formats, as specified by the format
+argument(s).
+If no filenames are specified, standard input is read and dumped.
+By default, the file is dumped 16 bytes per line.
+The -n option may specify a different number of bytes per line.
+By default, display lines that are identical to the previous displayed
+line are not displayed; instead a "*" is displayed to indicate
+missing repeated lines.
+The -v option overrides this and causes all data to be displayed.
+The -f option may specify an offset in the file from which
+to start dumping.
+.I Dm
+will seek to this offset before beginning to dump data.
+The -F option is like -f, but the offset is reached by reading
+thru the file rather than seeking.
+Numbers entered on the command line
+are decimal by default, but may be preceeded by 0 to make them octal,
+or 0x to make them hexadecimal.
+In addition, a number may be followed by a "k" to multiply it by 1024.
+.PP
+Each format option begins with either a minus sign or a plus sign.
+If a format begins with a plus sign, it is displayed on the same
+line as the previous format.
+If a format begins with a minus sign, it is displayed
+on a new line; that is, under the previous format.
+If the first format option begins with a plus sign rather than a minus sign,
+a default format (-x) is used as the first format, 
+and the plus format is used as the second format.
+If an option begins with two minus signs, it does not set up
+a format, but rather changes the defaults for any following formats.
+See the examples below.
+.PP
+Formats may include the following option letters:
+.IP b
+Dump bytes.
+.IP w
+Dump words (2 bytes).
+.IP l
+Dump longs (4 bytes).
+.IP x
+Dump in hexadecimal.
+.IP o
+Dump in octal.
+.IP d
+Dump in decimal.
+.IP r#
+Dump in radix #, where # is a decimal number
+between 2 and 36.
+Digits between 10 and 35 are represented by the letters a - z
+(or A - Z if -u is specified).
+.IP u
+Use uppercase letters for digits between 10 and 35.
+The default is to use lowercase.
+.IP X
+Same as xu.
+.IP c
+Dump as ASCII characters.
+Each non-printable character is printed as a period.
+.IP C
+Dump as ASCII characters.
+Each non-printable character is printed as the hex value of the
+character.
+However, if a radix is specified (via -d, -o or -r),
+that radix is used (instead of hex) to display the non-printable characters.
+.IP m
+Used with -C,
+causes certain non-printable
+characters (namely, those between 0x00 and 0x20, as well as 0x7F),
+to be displayed using ASCII mnemonic names, such as "ESC" for 0x1B.
+Other non-printables (0x80 - 0xFF) are still printed as hex numbers.
+The character 0x0C, usually called "FF" (form feed) is displayed
+as "NP" (new page), to avoid confusion with hex 0xFF.
+The character 0x0A, sometimes called "LF" (line feed) is displayed
+as "NL" (new line), for no good reason.
+.IP e
+Used with -C,
+causes certain non-printable characters to be printed as escape sequences,
+similar to the backslash escape sequences used in the C language.
+Escape sequences are used for the following characters:
+.nf
+\\0   0x00  NUL
+\\b   0x08  BS
+\\e   0x1B  ESC
+\\f   0x0C  NP
+\\n   0x0A  NL
+\\r   0x0D  CR
+\\t   0x09  HT
+.fi
+Other non-printables are printed as numbers, or, if the -m flag
+is also given, as ASCII mnemonics if possible.
+.IP s
+Treat each number as signed.
+The default is to treat each number as unsigned.
+.IP j
+Left justify each number in the display.
+The default is to right justify.
+.IP z
+Zero pad each number in the display.
+The default is to pad with spaces.
+.IP ,#
+Insert a comma after each # digits in the display,
+where # is a decimal integer.
+The default is not to insert any commas.
+.IP .#
+Like ",", but inserts dots instead of commas.
+.IP p#
+Force the minimum printing width of each number in the display 
+to be # spaces, where # is a decimal integer.
+If no -p option is given, a width is chosen wide enough to hold the
+largest possible number of the given radix and size (byte,word,long).
+The -p option will never cause truncation of the displayed number,
+so a number may exceed the specified width;
+this may disrupt the columnar alignment of the output.
+.IP a
+Specifies that this format applies to the file ADDRESSES in the display,
+rather than the data items.
+The default for addresses is hexadecimal;
+however, the default address format is affected by any -- options.
+The size of addresses is always longwords and cannot be changed.
+The option -aN will suppress addresses.
+.PP
+Only one of b,w,l,c,C may be specified in any single format option.
+If none are specified, the default is l (unless changed by a -- option).
+Only one of x,o,d,r,c may be specified in any single format option.
+If none are specified, the default is x (unless changed by a -- option).
+.SH "EXAMPLES"
+.IP "dm file"
+Dump the file as hex longs.
+.IP "dm -xb +c file"
+Dump the file as hex bytes and ASCII characters, side by side.
+.IP "dm -xls -dw -ob file"
+Dump the file as signed hex longs, unsigned decimal words, and 
+unsigned octal bytes, vertically aligned.
+.IP "dm -n8 -ad -x +c -r3w file"
+Dump the file, 8 bytes per line, as hex longs, ASCII characters and
+trinary (radix 3) words.
+The characters are to the right of the hex longs, and the
+trinary words are below the hex longs.
+Addresses are displayed in decimal.
+.IP "dm -Cemo file"
+Dump the file as characters.
+Nonprintable characters which can be printed as C escapes are so displayed.
+Other nonprintables which can be printed as ASCII mnemonics are so displayed.
+Any remaining nonprintables are displayed as octal numbers.
+.IP "dm -aozp7 -zow file"
+Dumps the file in zero padded octal words.
+Addresses are displayed in zero padded octal, using 7 printing positions.
+This mimics the default behavior of od(1).
+.IP "dm --oz -ap7 -w file"
+Same as the previous example.
+Note that the --oz option changes the default radix to octal
+and sets up zero padding by default for the following options.
+This applies to the address format as well as all data formats.
+.SH "SEE ALSO"
+od(1)
+.SH BUGS
+Signed bytes (-sb) will work only if 
+.I dm
+is compiled with a C compiler in which "chars" are signed.

@@ -1,0 +1,30 @@
+dm is a "hex dump" utility which gives the user a lot of control over
+the format of the output.  Input data items may be interpreted as 
+signed or unsigned bytes, words or longwords.  Output may appear in 
+hex, octal, decimal, binary, or in fact any radix between 2 and 36;
+or as ASCII characters, with nonprintable characters displayed in several 
+different ways: as a period, as a number (for example, "08"), as the 
+ASCII mnemonic ("BS"), or as the C escape sequence ("\b").  The 
+layout of the output can also be controlled: options control the 
+output field widths, whether different formats are aligned horizontally
+or vertically, whether output numbers are zero-padded or blank-padded,
+whether they are right or left justified, and whether commas are inserted.
+
+This was developed and tested on a 2's complement, little-endian machine,
+with int = long = 32 bits, short = 16 bit, char = 8 bit.
+It should work on other architectures as well, but probably will not work 
+well if the machine does not have signed and unsigned integral data types
+of 8, 16 and 32 bits.
+
+INSTALLATION INSTRUCTIONS
+
+1. Check the definitions in dm.h for s8, s16 and s32.
+   These should be the data types for signed 8-bit integer,
+   signed 16 bit integers and signed 32 bit integer.
+   Similarly, u8, u16 and u32 are unsigned integer types.
+
+2. Type: "make".
+
+3. Try it out.
+
+Problems, suggestions, etc. to {pacbell,pyramid}!ctnews!unix386!mark
