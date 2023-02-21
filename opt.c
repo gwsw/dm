@@ -6,13 +6,13 @@
 #include "dm.h"
 
 char *version = "1.2";
-struct format format[NFORMAT];	/* All data formats */
-struct format aformat;		/* Address format */
-int nformat = 0;		/* Number of formats in format[] */
-int count = 16;			/* Count of bytes per line */
-int verbose = 0;		/* Show all data */
-long fileoffset = 0L;		/* Starting offset in the input file */
-int readoffset = 0;		/* Read rather than seek to fileoffset */
+struct format format[NFORMAT];  /* All data formats */
+struct format aformat;          /* Address format */
+int nformat = 0;                /* Number of formats in format[] */
+int count = 16;                 /* Count of bytes per line */
+int verbose = 0;                /* Show all data */
+long fileoffset = 0L;           /* Starting offset in the input file */
+int readoffset = 0;             /* Read rather than seek to fileoffset */
 int bigendian = 0;
 
 /*
@@ -22,20 +22,20 @@ int bigendian = 0;
  */
 static struct format def = {
 	NULL, NULL,
-	0,		/* Default flags = (none) */
-	16,		/* Default radix = hex */
-	1,		/* Default size = byte */
-	0,		/* width */
-	0,		/* zwidth */
-	0,		/* comma */
-	0		/* col */
+	0,   /* Default flags = (none) */
+	16,  /* Default radix = hex */
+	1,   /* Default size = byte */
+	0,   /* width */
+	0,   /* zwidth */
+	0,   /* comma */
+	0    /* col */
 };
 
 static char addrtab[64];
 
 /* usage error messages */
-char DUP_SIZE[] =	"more than one SIZE option in a format";
-char DUP_RADIX[] = 	"more than one RADIX option in a format";
+char DUP_SIZE[] =  "more than one SIZE option in a format";
+char DUP_RADIX[] = "more than one RADIX option in a format";
 
 static void adjcol(void);
 static void setaddrtab(void);
@@ -149,15 +149,15 @@ option(char *s)
 
 	while (*s != '\0')  switch (*s++)
 	{
-	case 'a':	/* Applies to address, not data */
+	case 'a': /* Applies to address, not data */
 		addr = 1;
 		break;
-	case 'b':	/* 8 bit size */
+	case 'b': /* 8 bit size */
 		if (size)
 			usage(DUP_SIZE);
 		size = 1;
 		break;
-	case 'c':	/* Character (ASCII) */
+	case 'c': /* Character (ASCII) */
 		if (size)
 			usage(DUP_SIZE);
 		if (radix)
@@ -166,60 +166,60 @@ option(char *s)
 		size = 1;
 		inter = "";
 		break;
-	case 'C':	/* Character (expanded ASCII) */
+	case 'C': /* Character (expanded ASCII) */
 		if (size)
 			usage(DUP_SIZE);
 		size = 1;
 		flags |= ASCHAR;
 		break;
-	case 'd':	/* Radix 10 (decimal) */
+	case 'd': /* Radix 10 (decimal) */
 		if (radix)
 			usage(DUP_RADIX);
 		radix = 10;
 		break;
-	case 'e':	/* Print C style escape sequences for characters */
+	case 'e': /* Print C style escape sequences for characters */
 		flags |= CSTYLE;
 		break;
-	case 'F':	/* Set initial file offset */
+	case 'F': /* Set initial file offset */
 		readoffset = 1;
 		/* FALLTHRU */
-	case 'f':	/* Set initial file offset */
+	case 'f': /* Set initial file offset */
 		fileoffset = getlong(&s);
 		if (*s != '\0')
 			usage("extra characters in -f option");
 		return;
-	case 'j':	/* Left justify */
+	case 'j': /* Left justify */
 		flags |= LEFTJUST;
 		break;
-	case 'l':	/* 32 bit size */
+	case 'l': /* 32 bit size */
 		if (size)
 			usage(DUP_SIZE);
 		size = 4;
 		break;
-	case 'L':	/* 64 bit size */
+	case 'L': /* 64 bit size */
 		if (size)
 			usage(DUP_SIZE);
 		size = 8;
 		break;
-	case 'm':	/* Mnemonic ASCII */
+	case 'm': /* Mnemonic ASCII */
 		flags |= MNEMONIC;
 		break;
-	case 'n':	/* Set count (bytes per line) */
+	case 'n': /* Set count (bytes per line) */
 		count = getint(&s);
 		if (*s != '\0')
 			usage("extra characters in -n option");
 		if (count < 1 || count > MAXLINESIZE)
 			usage("illegal value for -n option");
 		return;
-	case 'N':	/* Don't print; useful with -a */
+	case 'N': /* Don't print; useful with -a */
 		flags |= NOPRINT;
 		break;
-	case 'o':	/* Radix 8 (octal) */
+	case 'o': /* Radix 8 (octal) */
 		if (radix)
 			usage(DUP_RADIX);
 		radix = 8;
 		break;
-	case 'p':	/* Set printing width */
+	case 'p': /* Set printing width */
 		width = getint(&s);
 		break;
 	case 'q':
@@ -228,20 +228,20 @@ option(char *s)
 	case 'Q':
 		bigendian = 1;
 		break;
-	case 'r':	/* Set arbitrary radix */
+	case 'r': /* Set arbitrary radix */
 		if (radix)
 			usage(DUP_RADIX);
 		radix = getint(&s);
 		if (radix < 2 || radix > 36)
 			usage("invalid radix");
 		break;
-	case 's':	/* Signed numbers */
+	case 's': /* Signed numbers */
 		flags |= SIGNED;
 		break;
-	case 'u':	/* Use uppercase for alphabetic digits */
+	case 'u': /* Use uppercase for alphabetic digits */
 		flags |= UPPERCASE;
 		break;
-	case 'U':	/* UTF-8 */
+	case 'U': /* UTF-8 */
 		flags |= UTF_8;
 		break;
 	case 'v':
@@ -250,20 +250,20 @@ option(char *s)
 	case 'V':
 		printf("dm version %s\n", version);
 		exit(0);
-	case 'w':	/* 16 bit size */
+	case 'w': /* 16 bit size */
 		if (size)
 			usage(DUP_SIZE);
 		size = 2;
 		break;
-	case 'X':	/* Radix 16 (hex) with uppercase */
+	case 'X': /* Radix 16 (hex) with uppercase */
 		flags |= UPPERCASE;
 		/* FALLTHRU */
-	case 'x':	/* Radix 16 (hex) */
+	case 'x': /* Radix 16 (hex) */
 		if (radix)
 			usage(DUP_RADIX);
 		radix = 16;
 		break;
-	case 'z':	/* Zero pad */
+	case 'z': /* Zero pad */
 		flags |= ZEROPAD;
 		break;
 	case '.':

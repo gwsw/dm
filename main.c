@@ -1,30 +1,30 @@
 /*
- *	dm - file dump utility
+ * dm - file dump utility
  *
  * dm, like od, dumps a file in various formats.
  * It has more options and more control of the output format than od.
  * The man page has details; here is a brief summary of the options:
- *	b  bytes
- *	w  words
- *	l  longwords
- *	x  hex
- *	o  octal
- *	d  decimal
- *	r# radix #
- *	u  uppercase
- *	U  UTF-8
- *	X  same as xu
- *	c  characters
- *	C  verbose characters
- *	e  use C style escapes (with -C)
- *	m  use ASCII mnemonics (with -C)
- *	s  signed
- *	j  left justify
- *	z  zero pad
- *	p# set printing width to #
- *	,# insert commas every # digits
- *	.# insert periods every # digits
- *	a  format applies to file addresses
+ *  b  bytes
+ *  w  words
+ *  l  longwords
+ *  x  hex
+ *  o  octal
+ *  d  decimal
+ *  r# radix #
+ *  u  uppercase
+ *  U  UTF-8
+ *  X  same as xu
+ *  c  characters
+ *  C  verbose characters
+ *  e  use C style escapes (with -C)
+ *  m  use ASCII mnemonics (with -C)
+ *  s  signed
+ *  j  left justify
+ *  z  zero pad
+ *  p# set printing width to #
+ *  ,# insert commas every # digits
+ *  .# insert periods every # digits
+ *  a  format applies to file addresses
  * Generally, each command line option sets up one display format.
  */
 
@@ -135,8 +135,7 @@ dumpfile(char *filename)
 		if (bufdata < count) {
 			bufdata = 0;
 		} else {
-			int ovf = bufdata - count;
-			memmove(buf, buf+count, ovf);
+			memmove(buf, buf+count, bufdata-count);
 			bufdata -= count;
 		}
 		len = fread(buf + bufdata, sizeof(char), count + rextra - bufdata, f);

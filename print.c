@@ -9,7 +9,7 @@
  * DCOMMA must fit in a char and be distinguishable from
  * any valid digit (in the valid radix range of 2..35).
  */
-#define	DCOMMA	   (36)
+#define DCOMMA     (36)
 #define PR_CONTIN  '_'
 
 typedef union {
@@ -191,7 +191,7 @@ prnum(struct format *f, number num, int *widthp)
 
 	d = 0;
 	if ((comma = f->comma) == 0)
-		comma = 10000;	/* more than the possible number of digits */
+		comma = 10000; /* more than the possible number of digits */
 	do {
 		digits[d++] = unum % f->radix;
 		unum /= f->radix;
@@ -235,24 +235,24 @@ prnum(struct format *f, number num, int *widthp)
 
 static char *aschar[] =
 {
-	"NUL",	"SOH",	"STX",	"ETX",	"EOT",	"ENQ",	"ACK",	"BEL",
-	"BS",	"HT",	"NL",	"VT",	"NP",	"CR",	"SO",	"SI",
-	"DLE",	"DC1",	"DC2",	"DC3",	"DC4",	"NAK",	"SYN",	"ETB",
-	"CAN",	"EM",	"SUB",	"ESC",	"FS",	"GS",	"RS",	"US"
+   "NUL", "SOH", "STX", "ETX", "EOT", "ENQ", "ACK", "BEL",
+   "BS",  "HT",  "NL",  "VT",  "NP",  "CR",  "SO",  "SI",
+   "DLE", "DC1", "DC2", "DC3", "DC4", "NAK", "SYN", "ETB",
+   "CAN", "EM",  "SUB", "ESC", "FS",  "GS",  "RS",  "US"
 };
 
 static char *cstyle[] =
 {
-	"\\0",	NULL,	NULL,	NULL,	NULL,	NULL,	NULL,	NULL,	
-	"\\b",	"\\t",	"\\n",	NULL,	"\\f",	"\\r",	NULL,	NULL,
-	NULL,	NULL,	NULL,	NULL,	NULL,	NULL,	NULL,	NULL,
-	NULL,	NULL,	NULL,	"\\e",	NULL,	NULL,	NULL,	NULL
+   "\\0", NULL,  NULL,  NULL,  NULL,  NULL,  NULL,  NULL,   
+   "\\b", "\\t", "\\n", NULL,  "\\f", "\\r", NULL,  NULL,
+   NULL,  NULL,  NULL,  NULL,  NULL,  NULL,  NULL,  NULL,
+   NULL,  NULL,  NULL,  "\\e", NULL,  NULL,  NULL,  NULL
 };
 
-#define	TABLESIZE(table)	(sizeof(table)/sizeof(char *))
+#define TABLESIZE(table) (sizeof(table)/sizeof(char *))
 
-#define	SP	(' ')
-#define	DEL	(0x7F)
+#define SP   (' ')
+#define DEL  (0x7F)
 
 /*
  * Return the printable form of a character.
