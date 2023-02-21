@@ -10,6 +10,7 @@
  * any valid digit (in the valid radix range of 2..35).
  */
 #define	DCOMMA	(36)
+#define PR_CONTIN  '_'
 
 typedef union {
 	long long s;
@@ -19,6 +20,7 @@ typedef union {
 static void printitem(struct format *f, number num);
 static char * prchar(struct format *f, number num, int *widthp);
 static char * prnum(struct format *f, number num, int *widthp);
+static void print_utf8(struct format *f, u8 *buf);
 extern int bigendian;
 
 /*
@@ -55,21 +57,9 @@ printbuf(struct format *f, u8 *buf, int size, int len)
 			/* No more data in the buffer; just print spaces. */
 			prspaces(f->width);
 		} else if ((f->flags & UTF_8) && (buf[0] & 0x80)) {
-			prspaces(f->width - 1);
-			if ((buf[0] & 0xC0) == 0x80) { /* continuation byte */
-				fputc('_', stdout);
-			} else {
-				isize = (buf[0] & 0xE0) == 0xC0 ? 2 : 
-						(buf[0] & 0xF0) == 0xE0 ? 3 : 
-						(buf[0] & 0xF8) == 0xF0 ? 4 : 1;
-				if (isize > len) { /* {{ FIXME }} */
-					fputc('?', stdout);
-				} else { /* print whole UTF-8 sequence for this char */
-					for (i = 0;  i < isize;  i++)
-						fputc(buf[i], stdout);
-				}
-			}
-			isize = 1;
+			/* Extract next UTF-8 char and print it. */
+			print_utf8(f, buf);
+			isize = 1; /* just count 1 so we print the continuation bytes */
 		} else {
 			/* Extract the next number and print it. */
 			num.u = 0;
@@ -122,6 +112,27 @@ printitem(struct format *f, number num)
 		prspaces(f->width - width);
 		prstring(s);
 	}
+}
+
+	static void
+print_utf8(struct format *f, u8 *buf)
+{
+	int pad = f->width - 1;
+	if (!(f->flags & LEFTJUST))
+		prspaces(pad);
+	if ((buf[0] & 0xC0) == 0x80) { /* continuation byte */
+		fputc(PR_CONTIN, stdout);
+	} else { /* print full (multibyte) UTF-8 char */
+		int isize =
+			(buf[0] & 0xE0) == 0xC0 ? 2 : 
+			(buf[0] & 0xF0) == 0xE0 ? 3 : 
+			(buf[0] & 0xF8) == 0xF0 ? 4 : 1;
+		int i;
+		for (i = 0;  i < isize;  i++)
+			fputc(buf[i], stdout);
+	}
+	if (f->flags & LEFTJUST)
+		prspaces(pad);
 }
 
 /*

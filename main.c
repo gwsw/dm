@@ -77,6 +77,8 @@ dumpfile(char *filename)
 	FILE *f;
 	size_t len;
 	size_t last_len;
+	size_t bufdata;
+	size_t rextra = 6;
 	int didstar;
 	off_t addr;
 	off_t firstaddr;
@@ -128,7 +130,18 @@ dumpfile(char *filename)
 	}
 
 	firstaddr = addr;
-	for ( ;  (len = fread(buf, sizeof(char), count, f)) > 0;  addr += len) {
+	bufdata = 0;
+	for (;; addr += count) {
+		if (bufdata < count) {
+			bufdata = 0;
+		} else {
+			int ovf = bufdata - count;
+			memmove(buf, buf+count, ovf);
+			bufdata -= count;
+		}
+		len = fread(buf + bufdata, sizeof(char), count + rextra - bufdata, f);
+		if (len <= 0) break;
+		bufdata += len;
 		size_t i;
 		/* Fill the unused bytes with 0. */
 		for (i = len;  i < count;  i++)
