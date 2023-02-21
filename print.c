@@ -86,6 +86,20 @@ printbuf(struct format *f, u8 *buf, int size, int len)
 }
 
 /*
+ * Pad with spaces on the left or right as required.
+ */
+static void prjust(struct format *f, char *s, int width) 
+{
+	if (f->flags & LEFTJUST) {
+		prstring(s);
+		prspaces(f->width - width);
+	} else {
+		prspaces(f->width - width);
+		prstring(s);
+	}
+}
+
+/*
  * Print a single data item according to a given format.
  */
 	static void
@@ -101,48 +115,35 @@ printitem(struct format *f, number num)
 		s = prchar(f, num, &width);
 	else
 		s = prnum(f, num, &width);
-
-	/*
-	 * Pad with spaces on the left or right as required.
-	 */
-	if (f->flags & LEFTJUST) {
-		prstring(s);
-		prspaces(f->width - width);
-	} else {
-		prspaces(f->width - width);
-		prstring(s);
-	}
+	prjust(f, s, width);
 }
 
+/*
+ * Print multibyte UTF-8 char.
+ */
 	static void
 print_utf8(struct format *f, u8 *buf)
 {
-	///if (!(f->flags & LEFTJUST))
-		///prspaces(pad);
+	u8 obytes[32];
+	int b = 0;
 	unsigned long ovalue = 0;
 	if ((buf[0] & 0xC0) == 0x80) { /* continuation byte */
-		fputc(PR_CONTIN, stdout);
-		ovalue = PR_CONTIN;
+		obytes[b++] = ovalue = PR_CONTIN;
 	} else { /* print full (multibyte) UTF-8 char */
-		int isize =
-			(buf[0] & 0xE0) == 0xC0 ? 2 : 
-			(buf[0] & 0xF0) == 0xE0 ? 3 : 
-			(buf[0] & 0xF8) == 0xF0 ? 4 :
-			(buf[0] & 0xFC) == 0xF8 ? 5 : 
-			(buf[0] & 0xFE) == 0xFC ? 6 : 1;
-		int mask = (1 << (7-isize)) - 1;
+		int usize = utf8_size(buf[0]);
+		int umask = (1 << (7-usize)) - 1;
 		int i;
-		/* We can access all of isize, even if it is past buf len,
+		/* We can access all of usize, even if it is past buf len,
 		 * because of rextra. */
-		for (i = 0;  i < isize;  i++) {
-			fputc(buf[i], stdout);
-			ovalue = (ovalue << 6) | (buf[i] & mask);
-			mask = 0x3F;
+		for (i = 0;  i < usize;  i++) {
+			obytes[b++] = buf[i];
+			ovalue = (ovalue << 6) | (buf[i] & umask);
+			umask = 0x3F;
 		}
 	}
+	obytes[b] = '\0';
 	int width = is_wide_char(ovalue) ? 2 : 1;
-	///if (f->flags & LEFTJUST)
-		prspaces(f->width - width);
+	prjust(f, (char*)obytes, width);
 }
 
 /*

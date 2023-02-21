@@ -66,17 +66,18 @@ struct format
 #define	BIGENDIAN	0x200	/* */
 #define	UTF_8		0x400	/* UTF-8 */
 
-void	dumpfile();
-int	getint();
-long	getlong();
-int	ndigits();
-void	option();
-int	options();
-void	panic();
-void	printbuf();
-void	prspaces();
-void	prstring();
-unsigned long long maxi();
-void	usage();
-int	defwidth();
+void dumpfile(char *filename);
+int getint(char **ss);
+long getlong(char **ss);
+int ndigits(int radix, int size);
+void option(char *s);
+int options(int argc, char *argv[]);
+void panic(char *s);
+void printbuf(struct format *f, u8 *buf, int size, int len);
+void prspaces(int n);
+void prstring(char *s);
+unsigned long long maxi(int size);
+void usage(char *s);
+int defwidth(int radix, int size, int comma);
 int is_wide_char(unsigned long ch);
+int utf8_size(unsigned char ch);

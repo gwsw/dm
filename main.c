@@ -167,7 +167,7 @@ dumpfile(char *filename)
 
 		/* Print the data, in all formats. */
 		for (i = 0;  i < nformat;  i++)
-			printbuf(&format[i], buf, count, len);
+			printbuf(&format[i], (u8*) buf, count, len);
 	}
 	/* Print the final address. */
 	printbuf(&aformat, (u8*) &addr, sizeof(addr), sizeof(addr));

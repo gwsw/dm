@@ -33,9 +33,6 @@ static struct format def = {
 
 static char addrtab[64];
 
-long getlong();
-int getint();
-
 /* usage error messages */
 char DUP_SIZE[] =	"more than one SIZE option in a format";
 char DUP_RADIX[] = 	"more than one RADIX option in a format";
@@ -537,8 +534,7 @@ gdigit(int ch)
  * Parse an integer.
  */
 	long
-getlong(ss)
-	char **ss;
+getlong(char **ss)
 {
 	char *s = *ss;
 	long n;
@@ -590,15 +586,13 @@ getlong(ss)
 }
 
 	int
-getint(ss)
-	char **ss;
+getint(char **ss)
 {
 	return ((int) getlong(ss));
 }
 
 	void
-usage(s)
-	char *s;
+usage(char *s)
 {
 	if (s != NULL)
 		fprintf(stderr, "dm: %s\n", s);
