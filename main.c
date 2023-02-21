@@ -76,10 +76,10 @@ dumpfile(char *filename)
 {
 	FILE *f;
 	size_t len;
-	size_t last_len;
+	size_t last_len = 0;
 	size_t bufdata;
 	size_t rextra = 6;
-	int didstar;
+	int didstar = 0;
 	off_t addr;
 	off_t firstaddr;
 	char buf[MAXLINESIZE];

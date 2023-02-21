@@ -1,6 +1,6 @@
 # Makefile for "dm", a (hex) dump program.
 
-OPTIM = -O
+OPTIM = -O2 -Wall
 
 CFLAGS = $(OPTIM)
 

@@ -308,6 +308,7 @@ option(char *s)
 		f = &aformat;
 		if (radix == 1 || (flags & (ASCHAR|MNEMONIC|CSTYLE)))
 			usage("invalid option used with -a");
+		zwidth = 0;
 	} else
 	{
 		/*
@@ -613,6 +614,6 @@ usage(s)
 	fprintf(stderr, "      -w words   -C char,num   -d  decimal    -z  zero pad\n");
 	fprintf(stderr, "      -l longs   -m mnemonic   -o  octal      -p# printing width #\n");
 	fprintf(stderr, "      -s signed  -e C-escape   -r# radix #    -,# comma every # digits\n");
-	fprintf(stderr, "                               -u  uppercase  -.# dot every # digits\n");
+	fprintf(stderr, "                 -U UTF-8      -u  uppercase  -.# dot every # digits\n");
 	exit(1);
 }
