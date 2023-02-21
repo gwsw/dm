@@ -16,9 +16,9 @@ typedef union {
 	unsigned long long u;
 } number;
 
-static void printitem();
-static char *prchar();
-static char *prnum();
+static void printitem(struct format *f, number num);
+static char * prchar(struct format *f, number num, int *widthp);
+static char * prnum(struct format *f, number num, int *widthp);
 extern int bigendian;
 
 /*
@@ -50,24 +50,41 @@ printbuf(struct format *f, u8 *buf, int size, int len)
 		return;
 
 	while (size > 0) {
+		char isize = f->size;
 		if (len <= 0) {
 			/* No more data in the buffer; just print spaces. */
 			prspaces(f->width);
+		} else if ((f->flags & UTF_8) && (buf[0] & 0x80)) {
+			prspaces(f->width - 1);
+			if ((buf[0] & 0xC0) == 0x80) { /* continuation byte */
+				fputc('_', stdout);
+			} else {
+				isize = (buf[0] & 0xE0) == 0xC0 ? 2 : 
+						(buf[0] & 0xF0) == 0xE0 ? 3 : 
+						(buf[0] & 0xF8) == 0xF0 ? 4 : 1;
+				if (isize > len) { /* {{ FIXME }} */
+					fputc('?', stdout);
+				} else { /* print whole UTF-8 sequence for this char */
+					for (i = 0;  i < isize;  i++)
+						fputc(buf[i], stdout);
+				}
+			}
+			isize = 1;
 		} else {
 			/* Extract the next number and print it. */
 			num.u = 0;
 			if (bigendian) { // FIXME (f->flags & BIGENDIAN)
-				for (i = 0;  i < f->size;  i++)
+				for (i = 0;  i < isize;  i++)
 					num.u = (256 * num.u) + buf[i];
 			} else {
-				for (i = f->size-1;  i >= 0;  i--)
+				for (i = isize-1;  i >= 0;  i--)
 					num.u = (256 * num.u) + buf[i];
 			}
 			printitem(f, num);
 		}
-		buf += f->size;
-		len -= f->size;
-		size -= f->size;
+		buf += isize;
+		len -= isize;
+		size -= isize;
 		/*
 		 * If there is another number after this one,
 		 * print the "inter" string.
@@ -90,7 +107,7 @@ printitem(struct format *f, number num)
 	/*
 	 * Get the printable form of the item.
 	 */
-	if (f->radix == 1 || (f->flags & ASCHAR))
+	if (f->radix == 1 || (f->flags & (ASCHAR|UTF_8)))
 		s = prchar(f, num, &width);
 	else
 		s = prnum(f, num, &width);
@@ -217,10 +234,7 @@ static char *cstyle[] =
  * Return the printable form of a character.
  */
 	static char *
-prchar(f, num, widthp)
-	register struct format *f;
-	number num;
-	int *widthp;
+prchar(struct format *f, number num, int *widthp)
 {
 	register int n;
 	struct format cformat;

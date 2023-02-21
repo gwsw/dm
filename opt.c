@@ -241,6 +241,9 @@ option(char *s)
 	case 'u':	/* Use uppercase for alphabetic digits */
 		flags |= UPPERCASE;
 		break;
+	case 'U':	/* UTF-8 */
+		flags |= UTF_8;
+		break;
 	case 'v':
 		verbose = 1;
 		return;

@@ -23,3 +23,6 @@ shar: README makefile main.c opt.c print.c dm.h dm.nro
 
 dm.tar.gz: README makefile main.c opt.c print.c dm.h dm.nro
 	tar czf dm.tar.gz $^
+
+clean:
+	rm -f dm *.o

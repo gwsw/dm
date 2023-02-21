@@ -12,6 +12,7 @@
  *	d  decimal
  *	r# radix #
  *	u  uppercase
+ *	U  UTF-8
  *	X  same as xu
  *	c  characters
  *	C  verbose characters

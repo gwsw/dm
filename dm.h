@@ -64,6 +64,7 @@ struct format
 #define	CSTYLE		0x80	/* Alternate mnemonic ASCII */
 #define	DOTCOMMA	0x100	/* Print dots (periods) instead of commas */
 #define	BIGENDIAN	0x200	/* */
+#define	UTF_8		0x400	/* UTF-8 */
 
 void	dumpfile();
 int	getint();
