@@ -54,29 +54,25 @@ struct format
 };
 
 /* Flags */
-#define	SIGNED		0x01	/* Interpret numbers as signed */
-#define	LEFTJUST	0x02	/* Left justify in output */
-#define	ZEROPAD		0x04	/* Pad with zeros */
-#define	NOPRINT		0x08	/* Don't display at all */
-#define	UPPERCASE	0x10	/* Uppercase hex letters */
-#define	ASCHAR		0x20	/* Verbose ASCII */
-#define	MNEMONIC	0x40	/* Mnemonic ASCII */
-#define	CSTYLE		0x80	/* Alternate mnemonic ASCII */
-#define	DOTCOMMA	0x100	/* Print dots (periods) instead of commas */
-#define	BIGENDIAN	0x200	/* */
-#define	UTF_8		0x400	/* UTF-8 */
+#define	SIGNED		(1<< 0)  /* Interpret numbers as signed */
+#define	LEFTJUST	(1<< 1)  /* Left justify in output */
+#define	ZEROPAD		(1<< 2)  /* Pad with zeros */
+#define	NOPRINT		(1<< 3)  /* Don't display at all */
+#define	UPPERCASE	(1<< 4)  /* Uppercase hex letters */
+#define	ASCHAR		(1<< 5)  /* Verbose ASCII */
+#define	MNEMONIC	(1<< 6)  /* Mnemonic ASCII */
+#define	CSTYLE		(1<< 7)  /* Alternate mnemonic ASCII */
+#define	DOTCOMMA	(1<< 8)  /* Print dots (periods) instead of commas */
+#define	BIGENDIAN	(1<< 9)  /* */
+#define	UTF_8		(1<< 10) /* UTF-8 */
 
 void dumpfile(char *filename);
-int getint(char **ss);
-long getlong(char **ss);
 int ndigits(int radix, int size);
 void option(char *s);
 int options(int argc, char *argv[]);
 void panic(char *s);
 void printbuf(struct format *f, u8 *buf, int size, int len);
-void prspaces(int n);
 void prstring(char *s);
-unsigned long long maxi(int size);
 void usage(char *s);
 int defwidth(int radix, int size, int comma);
 int is_wide_char(unsigned long ch);

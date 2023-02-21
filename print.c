@@ -21,6 +21,7 @@ static void printitem(struct format *f, number num);
 static char * prchar(struct format *f, number num, int *widthp);
 static char * prnum(struct format *f, number num, int *widthp);
 static void print_utf8(struct format *f, u8 *buf);
+static void prspaces(int n);
 extern int bigendian;
 
 /*
@@ -311,7 +312,7 @@ prchar(struct format *f, number num, int *widthp)
 /*
  * Print n spaces.
  */
-	void
+	static void
 prspaces(int n)
 {
 	while (--n >= 0)
@@ -335,7 +336,7 @@ defwidth(int radix, int size, int comma)
 /*
  * Return the max (unsigned) value for a given size (byte, word, long).
  */
-	unsigned long long
+	static unsigned long long
 maxi(int size)
 {
 	switch (size)

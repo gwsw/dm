@@ -37,9 +37,11 @@ static char addrtab[64];
 char DUP_SIZE[] =	"more than one SIZE option in a format";
 char DUP_RADIX[] = 	"more than one RADIX option in a format";
 
-static void adjcol();
-static void setaddrtab();
-static void fixaformat();
+static void adjcol(void);
+static void setaddrtab(void);
+static void fixaformat(void);
+static int getint(char **ss);
+static long getlong(char **ss);
 
 /*
  * Parse command line options.
@@ -423,7 +425,7 @@ option(char *s)
  * spaces to tab past the address displayed on the first line.
  */
 	static void
-setaddrtab()
+setaddrtab(void)
 {
 	int width;
 	int i;
@@ -540,7 +542,7 @@ gdigit(int ch)
 /*
  * Parse an integer.
  */
-	long
+	static long
 getlong(char **ss)
 {
 	char *s = *ss;
@@ -592,7 +594,7 @@ getlong(char **ss)
 	return (n);
 }
 
-	int
+	static int
 getint(char **ss)
 {
 	return ((int) getlong(ss));
