@@ -2,12 +2,13 @@
 .SH NAME
 dm \- dump a file
 .SH SYNOPSIS
-.B "dm [-n#] [-v] [-f#] [-F#] [--default] [[-+]format]... [file]..."
+.B "dm [-n#] [-v] [-f#] [-F#] [-V] [--default] [[-+]format]... [file]..."
 .SH DESCRIPTION
 .I Dm
 dumps a file in one or more formats, as specified by the format
 argument(s).
 If no filenames are specified, standard input is read and dumped.
+If the -V option is specified, the version number is printed.
 By default, the file is dumped 16 bytes per line.
 The -n option may specify a different number of bytes per line.
 By default, display lines that are identical to the previous displayed
@@ -95,6 +96,10 @@ Escape sequences are used for the following characters:
 .fi
 Other non-printables are printed as numbers, or, if the -m flag
 is also given, as ASCII mnemonics if possible.
+.IP U
+Print as UTF-8 characters.
+A multibyte character is printed in the position of its first byte.
+Continuation bytes are printed as underscores.
 .IP s
 Treat each number as signed.
 The default is to treat each number as unsigned.

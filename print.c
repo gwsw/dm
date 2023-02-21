@@ -128,6 +128,8 @@ print_utf8(struct format *f, u8 *buf)
 			(buf[0] & 0xF0) == 0xE0 ? 3 : 
 			(buf[0] & 0xF8) == 0xF0 ? 4 : 1;
 		int i;
+		/* We can access all of isize, even if it is past buf len,
+		 * because of rextra. */
 		for (i = 0;  i < isize;  i++)
 			fputc(buf[i], stdout);
 	}

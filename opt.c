@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include "dm.h"
 
+char *version = "1.1";
 struct format format[NFORMAT];	/* All data formats */
 struct format aformat;		/* Address format */
 int nformat = 0;		/* Number of formats in format[] */
@@ -247,6 +248,9 @@ option(char *s)
 	case 'v':
 		verbose = 1;
 		return;
+	case 'V':
+		printf("dm version %s\n", version);
+		exit(0);
 	case 'w':	/* 16 bit size */
 		if (size)
 			usage(DUP_SIZE);
