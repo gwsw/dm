@@ -79,3 +79,4 @@ void	prstring();
 unsigned long long maxi();
 void	usage();
 int	defwidth();
+int is_wide_char(unsigned long ch);

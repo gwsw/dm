@@ -117,24 +117,32 @@ printitem(struct format *f, number num)
 	static void
 print_utf8(struct format *f, u8 *buf)
 {
-	int pad = f->width - 1;
-	if (!(f->flags & LEFTJUST))
-		prspaces(pad);
+	///if (!(f->flags & LEFTJUST))
+		///prspaces(pad);
+	unsigned long ovalue = 0;
 	if ((buf[0] & 0xC0) == 0x80) { /* continuation byte */
 		fputc(PR_CONTIN, stdout);
+		ovalue = PR_CONTIN;
 	} else { /* print full (multibyte) UTF-8 char */
 		int isize =
 			(buf[0] & 0xE0) == 0xC0 ? 2 : 
 			(buf[0] & 0xF0) == 0xE0 ? 3 : 
-			(buf[0] & 0xF8) == 0xF0 ? 4 : 1;
+			(buf[0] & 0xF8) == 0xF0 ? 4 :
+			(buf[0] & 0xFC) == 0xF8 ? 5 : 
+			(buf[0] & 0xFE) == 0xFC ? 6 : 1;
+		int mask = (1 << (7-isize)) - 1;
 		int i;
 		/* We can access all of isize, even if it is past buf len,
 		 * because of rextra. */
-		for (i = 0;  i < isize;  i++)
+		for (i = 0;  i < isize;  i++) {
 			fputc(buf[i], stdout);
+			ovalue = (ovalue << 6) | (buf[i] & mask);
+			mask = 0x3F;
+		}
 	}
-	if (f->flags & LEFTJUST)
-		prspaces(pad);
+	int width = is_wide_char(ovalue) ? 2 : 1;
+	///if (f->flags & LEFTJUST)
+		prspaces(f->width - width);
 }
 
 /*

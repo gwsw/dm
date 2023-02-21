@@ -8,7 +8,7 @@ DESTDIR =
 prefix = $(HOME)
 bindir = ${prefix}/bin
 
-OBJ = main.o opt.o print.o
+OBJ = main.o opt.o print.o utf8.o
 
 dm: $(OBJ)
 	$(CC) $(OPTIM) -o dm $(OBJ)
