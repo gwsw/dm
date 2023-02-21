@@ -9,7 +9,7 @@
  * DCOMMA must fit in a char and be distinguishable from
  * any valid digit (in the valid radix range of 2..35).
  */
-#define	DCOMMA	(36)
+#define	DCOMMA	   (36)
 #define PR_CONTIN  '_'
 
 typedef union {
@@ -88,7 +88,8 @@ printbuf(struct format *f, u8 *buf, int size, int len)
 /*
  * Pad with spaces on the left or right as required.
  */
-static void prjust(struct format *f, char *s, int width) 
+	static void
+prjust(struct format *f, char *s, int width) 
 {
 	if (f->flags & LEFTJUST) {
 		prstring(s);
@@ -124,7 +125,7 @@ printitem(struct format *f, number num)
 	static void
 print_utf8(struct format *f, u8 *buf)
 {
-	u8 obytes[32];
+	u8 obytes[8];
 	int b = 0;
 	unsigned long ovalue = 0;
 	if ((buf[0] & 0xC0) == 0x80) { /* continuation byte */

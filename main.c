@@ -40,15 +40,15 @@ extern off_t fileoffset;
 extern int readoffset;
 extern int bigendian;
 
-static int is_bigendian()
+	static int
+is_bigendian(void)
 {
 	u32 one = 1;
 	return (*(u8*)&one != 1);
 }
 
-int main(argc, argv)
-	int argc;
-	char *argv[];
+	int
+main(int argc, char *argv[])
 {
 	int arg;
 

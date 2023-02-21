@@ -76,8 +76,8 @@ options(int argc, char *argv[])
  * Initialize the address format.
  * It may already be partially initialized by a -a option.
  */
-	void
-fixaformat()
+	static void
+fixaformat(void)
 {
 	aformat.size = sizeof(off_t);
 	aformat.after = ": ";
@@ -444,7 +444,7 @@ setaddrtab()
  * to make the columns line up nicely.
  */
 	static void
-adjcol()
+adjcol(void)
 {
 	int col;
 	struct format *f;

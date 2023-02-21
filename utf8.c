@@ -3,7 +3,8 @@
 struct wchar_range { unsigned long first, last; };
 struct wchar_range_table { struct wchar_range *table; int count; };
 
-int utf8_size(unsigned char ch)
+	int
+utf8_size(unsigned char ch)
 {
 	return 
 		(ch & 0xE0) == 0xC0 ? 2 : 
@@ -13,7 +14,8 @@ int utf8_size(unsigned char ch)
 		(ch & 0xFE) == 0xFC ? 6 : 1;
 }
 
-static int is_in_table(unsigned long ch, struct wchar_range_table *table)
+	static int
+is_in_table(unsigned long ch, struct wchar_range_table *table)
 {
 	int hi;
 	int lo;
@@ -46,7 +48,8 @@ DECLARE_RANGE_TABLE_START(wide)
 #include "wide.uni"
 DECLARE_RANGE_TABLE_END(wide)
 
-int is_wide_char(unsigned long ch)
+	int
+is_wide_char(unsigned long ch)
 {
 	return is_in_table(ch, &wide_table);
 }
