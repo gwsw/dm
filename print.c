@@ -258,7 +258,7 @@ static char *cstyle[] =
 	static char *
 prchar(struct format *f, number num, int *widthp)
 {
-	register int n;
+	int n;
 	struct format cformat;
 	static char buf[2];
 
