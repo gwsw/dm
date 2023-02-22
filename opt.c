@@ -243,6 +243,7 @@ option(char *s)
 		break;
 	case 'U': /* UTF-8 */
 		flags |= UTF_8;
+		size = -1; // variable size
 		break;
 	case 'v':
 		verbose = 1;
@@ -277,6 +278,9 @@ option(char *s)
 	default:
 		usage("illegal option letter");
 	}
+
+	if (radix == 0 && (flags & UTF_8))
+		radix = 1;
 
 	if (optchar == '=')
 	{
@@ -355,13 +359,17 @@ option(char *s)
 				 * display C style mnemonics.
 				 */
 				zwidth = width = 2;
-			if ((flags & (UTF_8)) &&
-				width < 2)
-				/*
-				 * Need at least 2 printing positions to
-				 * display (double-wide) UTF-8 chars.
-				 */
-				zwidth = width = 2;
+			if (flags & UTF_8) {
+				if (radix == 1) {
+					if (width < 2) {
+						/*
+						 * Need at least 2 printing positions to
+						 * display (double-wide) UTF-8 chars.
+						 */
+						zwidth = width = 2;
+					}
+				}
+			}
 		}
 
 		/*
@@ -472,10 +480,11 @@ adjcol(void)
 		for (f = format;  f < &format[nformat];  f++)
 			if (f->col == col)
 			{
+				int psize = (f->size > 0) ? f->size : 1;
 				found++;
-				if (f->size < minsize)
-					minsize = f->size;
-				width8 = (8 / f->size) * 
+				if (psize < minsize)
+					minsize = psize;
+				width8 = (8 / psize) * 
 						(f->width + strlen(f->inter));
 				if (width8 > maxwidth8)
 					maxwidth8 = width8;
@@ -499,10 +508,11 @@ adjcol(void)
 		 * Run thru again, adjusting (rounding up) the width
 		 * for each format in this column.
 		 */
-		for (f = format;  f < &format[nformat];  f++)
+		for (f = format;  f < &format[nformat];  f++) {
+			int psize = (f->size > 0) ? f->size : 1;
 			if (f->col == col)
 			{
-				width8 = 8 / f->size;
+				width8 = 8 / psize;
 				f->width = (maxwidth8 / width8) - 
 						strlen(f->inter);
 				if (strlen(f->inter) == 0 && f->width > 1 && !(f->flags & UTF_8))
@@ -521,6 +531,7 @@ adjcol(void)
 					f->width--;
 				}
 			}
+		}
 	}
 }
 
@@ -614,6 +625,13 @@ usage(char *s)
 		fprintf(stderr, "dm: %s\n", s);
 
 	fprintf(stderr, "usage: dm [-n#][-v][-f#][-F#] [--<fmt>] [-aN<fmt>] [[-+]<fmt>]... [file]...\n");
+	fprintf(stderr, "    <fmt> is:\n");
+	fprintf(stderr, "      -b bytes   -c char/dot   -x  hex        -j  left justify\n");
+	fprintf(stderr, "      -w words   -C char/num   -d  decimal    -z  zero pad\n");
+	fprintf(stderr, "      -l longs   -m mnemonic   -o  octal      -p# printing width #\n");
+	fprintf(stderr, "      -s signed  -e C-escape   -r# radix #    -,# comma every # digits\n");
+	fprintf(stderr, "                 -U[dx] UTF-8  -u  uppercase  -.# dot every # digits\n");
+	fprintf(stderr, "\n");
 	fprintf(stderr, "           -n#      bytes per line\n");
 	fprintf(stderr, "           -v       don't skip repeated lines\n");
 	fprintf(stderr, "           -f#      skip to offset #\n");
@@ -623,11 +641,5 @@ usage(char *s)
 	fprintf(stderr, "           -aN      suppress file addresses\n");
 	fprintf(stderr, "           +<fmt>   format on same line\n");
 	fprintf(stderr, "           -<fmt>   format on new line\n");
-	fprintf(stderr, "<fmt> is:\n");
-	fprintf(stderr, "      -b bytes   -c char,dot   -x  hex        -j  left justify\n");
-	fprintf(stderr, "      -w words   -C char,num   -d  decimal    -z  zero pad\n");
-	fprintf(stderr, "      -l longs   -m mnemonic   -o  octal      -p# printing width #\n");
-	fprintf(stderr, "      -s signed  -e C-escape   -r# radix #    -,# comma every # digits\n");
-	fprintf(stderr, "                 -U UTF-8      -u  uppercase  -.# dot every # digits\n");
 	exit(1);
 }

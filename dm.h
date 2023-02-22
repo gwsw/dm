@@ -43,13 +43,13 @@ struct format
 	char *after;   /* String to print after all the numbers in a line */
 	char *inter;   /* String to print between numbers in a line */
 	short flags;   /* Flags: see below */
-	char radix;    /* Radix (base) of number representation
+	int radix;     /* Radix (base) of number representation
 	                  Note: radix 1 means character printing */
-	char size;     /* Size of numbers (1=byte, 2=word, 4=long) */
-	char width;    /* Printable width of each output number */
-	char zwidth;   /* Width to zero pad */
-	char comma;    /* Spacing of commas within printed number */
-	char col;      /* Column of this format; formats that are 
+	int size;      /* Size of numbers (1=byte, 2=word, 4=long) */
+	int width;     /* Printable width of each output number */
+	int zwidth;    /* Width to zero pad */
+	int comma;     /* Spacing of commas within printed number */
+	int col;       /* Column of this format; formats that are 
 	                  directly under each other have the same column */
 };
 
@@ -76,4 +76,6 @@ void prstring(char *s);
 void usage(char *s);
 int defwidth(int radix, int size, int comma);
 int is_wide_char(unsigned long ch);
-int utf8_size(unsigned char ch);
+int utf8_size(u8 ch);
+int utf8_is_contin(u8 ch);
+int utf8_value(u8 *buf, int *plen);

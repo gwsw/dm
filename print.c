@@ -9,8 +9,11 @@
  * DCOMMA must fit in a char and be distinguishable from
  * any valid digit (in the valid radix range of 2..35).
  */
-#define DCOMMA     (36)
-#define PR_CONTIN  '_'
+#define DCOMMA        36
+#define PR_CONTIN     '_'
+#define PR_MALFORMED  '?'
+#define SP            ' '
+#define DEL           0x7F
 
 typedef union {
 	long long s;
@@ -20,7 +23,9 @@ typedef union {
 static void printitem(struct format *f, number num);
 static char * prchar(struct format *f, number num, int *widthp);
 static char * prnum(struct format *f, number num, int *widthp);
-static void print_utf8(struct format *f, u8 *buf);
+static char * prcharnum(struct format *f, number num, int *widthp);
+static int print_utf8_char(struct format *f, u8 *buf);
+static int print_utf8_num(struct format *f, u8 *buf);
 static void prspaces(int n);
 extern int bigendian;
 
@@ -34,6 +39,21 @@ prstring(char *s)
 }
 
 /*
+ * Pad with spaces on the left or right as required.
+ */
+	static void
+prjust(struct format *f, char *s, int width) 
+{
+	if (f->flags & LEFTJUST) {
+		prstring(s);
+		prspaces(f->width - width);
+	} else {
+		prspaces(f->width - width);
+		prstring(s);
+	}
+}
+
+/*
  * Print a buffer of data according to a given format.
  * size is the full size of the buffer.
  * len is the amount of data actually in the buffer.
@@ -43,6 +63,7 @@ printbuf(struct format *f, u8 *buf, int size, int len)
 {
 	number num;
 	int i;
+	int skip = 0;
 
 	if (f->flags & NOPRINT)
 		/*
@@ -53,14 +74,24 @@ printbuf(struct format *f, u8 *buf, int size, int len)
 		return;
 
 	while (size > 0) {
-		char isize = f->size;
+		char isize = (f->size > 0) ? f->size : 1;
 		if (len <= 0) {
 			/* No more data in the buffer; just print spaces. */
 			prspaces(f->width);
-		} else if ((f->flags & UTF_8) && (buf[0] & 0x80)) {
+		} else if (skip > 0) {
+			char contin[] = { PR_CONTIN, '\0' };
+			prjust(f, contin, 1);
+			isize = 0;
+			--skip;
+		} else if (f->flags & UTF_8) {
 			/* Extract next UTF-8 char and print it. */
-			print_utf8(f, buf);
-			isize = 1; /* just count 1 so we print the continuation bytes */
+			if (f->radix == 1) {
+				print_utf8_char(f, buf);
+				isize = 1; /* just count 1 so we print the continuation bytes */
+			} else {
+				isize = print_utf8_num(f, buf);
+			}
+			skip = isize - 1;
 		} else {
 			/* Extract the next number and print it. */
 			num.u = 0;
@@ -87,21 +118,6 @@ printbuf(struct format *f, u8 *buf, int size, int len)
 }
 
 /*
- * Pad with spaces on the left or right as required.
- */
-	static void
-prjust(struct format *f, char *s, int width) 
-{
-	if (f->flags & LEFTJUST) {
-		prstring(s);
-		prspaces(f->width - width);
-	} else {
-		prspaces(f->width - width);
-		prstring(s);
-	}
-}
-
-/*
  * Print a single data item according to a given format.
  */
 	static void
@@ -123,29 +139,65 @@ printitem(struct format *f, number num)
 /*
  * Print multibyte UTF-8 char.
  */
-	static void
-print_utf8(struct format *f, u8 *buf)
+	static int
+print_utf8_char(struct format *f, u8 *buf)
 {
 	u8 obytes[8];
 	int b = 0;
-	unsigned long ovalue = 0;
-	if ((buf[0] & 0xC0) == 0x80) { /* continuation byte */
-		obytes[b++] = ovalue = PR_CONTIN;
+	char *out = (char *) obytes;
+	unsigned long uvalue = 0;
+	int usize = 1;
+	int width = 1;
+	if (utf8_is_contin(buf[0])) {
+		obytes[b++] = uvalue = PR_CONTIN;
 	} else { /* print full (multibyte) UTF-8 char */
-		int usize = utf8_size(buf[0]);
-		int umask = (1 << (7-usize)) - 1;
-		int i;
-		/* We can access all of usize, even if it is past buf len,
-		 * because of rextra. */
-		for (i = 0;  i < usize;  i++) {
-			obytes[b++] = buf[i];
-			ovalue = (ovalue << 6) | (buf[i] & umask);
-			umask = 0x3F;
+		usize = sizeof(buf);
+		uvalue = utf8_value(buf, &usize);
+		if (uvalue < 0) {
+			obytes[b++] = PR_MALFORMED;
+		} else if (uvalue < SP) {
+			number num;
+			num.u = uvalue;
+			out = prcharnum(f, num, NULL);
+			width = strlen(out);
+		} else {
+			memcpy(obytes, buf, usize);
+			b = usize;
+			width = is_wide_char(uvalue) ? 2 : 1;
 		}
 	}
 	obytes[b] = '\0';
-	int width = is_wide_char(ovalue) ? 2 : 1;
-	prjust(f, (char*)obytes, width);
+	prjust(f, out, width);
+	return usize;
+}
+
+/*
+ * Print multibyte UTF-8 char.
+ */
+	static int
+print_utf8_num(struct format *f, u8 *buf)
+{
+	char out[64];
+	int usize;
+	if (utf8_is_contin(buf[0])) {
+		out[0] = PR_CONTIN;
+		out[1] = '\0';
+		usize = 1;
+	} else {
+		number num;
+		usize = sizeof(buf);
+		int uvalue = utf8_value(buf, &usize);
+		if (uvalue < 0) {
+			usize = 1;
+			num.u = buf[0];
+			snprintf(out, sizeof(out), "<%s>?", prnum(f, num, NULL));
+		} else {
+			num.u = uvalue;
+			snprintf(out, sizeof(out), "%s", prnum(f, num, NULL));
+		}
+	}
+	prjust(f, out, strlen(out));
+	return usize;
 }
 
 /*
@@ -229,7 +281,8 @@ prnum(struct format *f, number num, int *widthp)
 			*s++ = v + 'a' - 10;
 	}
 	*s = '\0';
-	*widthp = s - buf;
+	if (widthp != NULL)
+		*widthp = s - buf;
 	return (buf);
 }
 
@@ -251,8 +304,21 @@ static char *cstyle[] =
 
 #define TABLESIZE(table) (sizeof(table)/sizeof(char *))
 
-#define SP   (' ')
-#define DEL  (0x7F)
+
+/*
+ * Print a character as a number.
+ */
+	static char *
+prcharnum(struct format *f, number num, int *widthp)
+{
+	struct format cformat;
+
+	cformat = *f;
+	cformat.size = 1;
+	cformat.radix = 16;
+	cformat.flags = ZEROPAD | (f->flags & (UPPERCASE));
+	return (prnum(&cformat, num, widthp));
+}
 
 /*
  * Return the printable form of a character.
@@ -261,7 +327,6 @@ static char *cstyle[] =
 prchar(struct format *f, number num, int *widthp)
 {
 	int n;
-	struct format cformat;
 	static char buf[2];
 
 	/* if (f->flags & SIGNED) panic("prchar signed"); */
@@ -302,11 +367,7 @@ prchar(struct format *f, number num, int *widthp)
 		return ("DEL");
 	}
 
-	/* Print as a number. */
-	cformat = *f;
-	cformat.size = 1;
-	cformat.flags = ZEROPAD | (f->flags & (UPPERCASE));
-	return (prnum(&cformat, num, widthp));
+	return prcharnum(f, num, widthp);
 }
 
 /*
@@ -345,6 +406,7 @@ maxi(int size)
 	case 4: return (0xffffffff);
 	case 2: return (0xffff);
 	case 1: return (0xff);
+	case -1: return (0x10ffff); // UTF-8
 	}
 	panic("maxi");
 	/*NOTREACHED*/
@@ -361,7 +423,7 @@ ndigits(int radix, int size)
 	int ndig;
 
 	if (radix == 1)
-		/* Simple ASCII character display */
+		/* Single character display */
 		return (1);
 
 	n = maxi(size);
