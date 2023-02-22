@@ -632,14 +632,14 @@ usage(char *s)
 	fprintf(stderr, "      -L 64-bit   -e C-escape   -r# radix #    -,# comma every # digits\n");
 	fprintf(stderr, "      -s signed   -U[dx] UTF-8  -u  uppercase  -.# dot every # digits\n");
 	fprintf(stderr, "\n");
-	fprintf(stderr, "           -n#      bytes per line\n");
-	fprintf(stderr, "           -v       don't skip repeated lines\n");
-	fprintf(stderr, "           -f#      skip to offset #\n");
-	fprintf(stderr, "           -F#      seek to offset #\n");
-	fprintf(stderr, "           --<fmt>  set default format\n");
-	fprintf(stderr, "           -a<fmt>  format file addresses\n");
-	fprintf(stderr, "           -aN      suppress file addresses\n");
-	fprintf(stderr, "           +<fmt>   format on same line\n");
-	fprintf(stderr, "           -<fmt>   format on new line\n");
+	fprintf(stderr, "      -n#      bytes per line\n");
+	fprintf(stderr, "      -v       don't skip repeated lines\n");
+	fprintf(stderr, "      -f#      skip to offset #\n");
+	fprintf(stderr, "      -F#      seek to offset #\n");
+	fprintf(stderr, "      -a<fmt>  address format\n");
+	fprintf(stderr, "      -aN      suppress addresses\n");
+	fprintf(stderr, "      +<fmt>   format on same line\n");
+	fprintf(stderr, "      -<fmt>   format on new line\n");
+	fprintf(stderr, "      --<fmt>  set default format\n");
 	exit(1);
 }
