@@ -5,7 +5,6 @@
 #include <stdio.h>
 #include "dm.h"
 
-char *version = "1.2";
 struct format format[NFORMAT];  /* All data formats */
 struct format aformat;          /* Address format */
 int nformat = 0;                /* Number of formats in format[] */

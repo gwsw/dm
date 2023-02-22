@@ -3,6 +3,8 @@
 #include <unistd.h>
 #include <string.h>
 
+#define version "1.3"
+
 /*
  * Integral types for byte (8 bit), word (16 bit) and long (32 bit).
  * Both signed and unsigned types are specified here.
