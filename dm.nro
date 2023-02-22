@@ -46,6 +46,8 @@ Dump bytes.
 Dump words (2 bytes).
 .IP l
 Dump longs (4 bytes).
+.IP L
+Dump long-longs (8 bytes).
 .IP x
 Dump in hexadecimal.
 .IP o

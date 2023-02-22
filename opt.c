@@ -626,11 +626,11 @@ usage(char *s)
 
 	fprintf(stderr, "usage: dm [-n#][-v][-f#][-F#] [--<fmt>] [-aN<fmt>] [[-+]<fmt>]... [file]...\n");
 	fprintf(stderr, "    <fmt> is:\n");
-	fprintf(stderr, "      -b bytes   -c char/dot   -x  hex        -j  left justify\n");
-	fprintf(stderr, "      -w words   -C char/num   -d  decimal    -z  zero pad\n");
-	fprintf(stderr, "      -l longs   -m mnemonic   -o  octal      -p# printing width #\n");
-	fprintf(stderr, "      -s signed  -e C-escape   -r# radix #    -,# comma every # digits\n");
-	fprintf(stderr, "                 -U[dx] UTF-8  -u  uppercase  -.# dot every # digits\n");
+	fprintf(stderr, "      -b 8-bit    -c char/dot   -x  hex        -j  left justify\n");
+	fprintf(stderr, "      -w 16-bit   -C char/num   -d  decimal    -z  zero pad\n");
+	fprintf(stderr, "      -l 32-bit   -m mnemonic   -o  octal      -p# printing width #\n");
+	fprintf(stderr, "      -L 64-bit   -e C-escape   -r# radix #    -,# comma every # digits\n");
+	fprintf(stderr, "      -s signed   -U[dx] UTF-8  -u  uppercase  -.# dot every # digits\n");
 	fprintf(stderr, "\n");
 	fprintf(stderr, "           -n#      bytes per line\n");
 	fprintf(stderr, "           -v       don't skip repeated lines\n");
