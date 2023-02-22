@@ -4,7 +4,7 @@ dm \- dump a file
 .SH SYNOPSIS
 .B "dm [-n#] [-v] [-f#] [-F#] [-V] [--default] [[-+]format]... [file]..."
 .SH DESCRIPTION
-.I Dm
+.B dm
 dumps a file in one or more formats, as specified by the format
 argument(s).
 If no filenames are specified, standard input is read and dumped.
@@ -17,7 +17,7 @@ missing repeated lines.
 The -v option overrides this and causes all data to be displayed.
 The -f option may specify an offset in the file from which
 to start dumping.
-.I Dm
+.B dm
 will seek to this offset before beginning to dump data.
 The -F option is like -f, but the offset is reached by reading
 thru the file rather than seeking.
@@ -101,6 +101,10 @@ is also given, as ASCII mnemonics if possible.
 Print as UTF-8 characters.
 A multibyte character is printed in the position of its first byte.
 Continuation bytes are printed as underscores.
+.IP Ud
+Print as UTF-8 decimal values.
+.IP Ux
+Print as UTF-8 hex values.
 .IP s
 Treat each number as signed.
 The default is to treat each number as unsigned.
@@ -168,5 +172,5 @@ This applies to the address format as well as all data formats.
 od(1)
 .SH BUGS
 Signed bytes (-sb) will work only if 
-.I dm
+.B dm
 is compiled with a C compiler in which "chars" are signed.
