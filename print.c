@@ -145,7 +145,7 @@ print_utf8_char(struct format *f, u8 *buf)
 	u8 obytes[8];
 	int b = 0;
 	char *out = (char *) obytes;
-	unsigned long uvalue = 0;
+	int uvalue = 0;
 	int usize = 1;
 	int width = 1;
 	if (utf8_is_contin(buf[0])) {

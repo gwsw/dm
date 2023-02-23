@@ -6,13 +6,15 @@ struct wchar_range_table { struct wchar_range *table; int count; };
 	int
 utf8_size(u8 ch)
 {
+	if ((ch & 0x80) == 0)
+		return 1;
 	return 
 		(ch & 0xE0) == 0xC0 ? 2 : 
 		(ch & 0xF0) == 0xE0 ? 3 : 
 		(ch & 0xF8) == 0xF0 ? 4 :
 		//(ch & 0xFC) == 0xF8 ? 5 : 
 		//(ch & 0xFE) == 0xFC ? 6 : 
-		1;
+		-1;
 }
 
 	int
@@ -21,7 +23,7 @@ utf8_value(u8 *buf, int *plen)
 	if (utf8_is_contin(*buf))
 		return -1;
 	int usize = utf8_size(*buf);
-	if (usize > *plen)
+	if (usize < 0 || usize > *plen)
 		return -1;
 	*plen = usize;
 	int uvalue = 0;
