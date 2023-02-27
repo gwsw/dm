@@ -237,7 +237,7 @@ option(char *s)
 	case 's': /* Signed numbers */
 		flags |= SIGNED;
 		break;
-	case 'u': /* Use uppercase for alphabetic digits */
+	case 'X': /* Use uppercase for alphabetic digits */
 		flags |= UPPERCASE;
 		break;
 	case 'U': /* UTF-8 */
@@ -255,9 +255,6 @@ option(char *s)
 			usage(DUP_SIZE);
 		size = 2;
 		break;
-	case 'X': /* Radix 16 (hex) with uppercase */
-		flags |= UPPERCASE;
-		/* FALLTHRU */
 	case 'x': /* Radix 16 (hex) */
 		if (radix)
 			usage(DUP_RADIX);
@@ -277,9 +274,8 @@ option(char *s)
 	default:
 		usage("illegal option letter");
 	}
-
-	if (radix == 0 && (flags & UTF_8))
-		radix = 1;
+	if (radix == 0)
+		radix = (flags & UTF_8) ? 1 : 16;
 
 	if (optchar == '=')
 	{

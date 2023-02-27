@@ -11,9 +11,9 @@
  *  o  octal
  *  d  decimal
  *  r# radix #
- *  u  uppercase
- *  U  UTF-8
- *  X  same as xu
+ *  u  UTF-8 chars
+ *  U  UTF-8 values
+ *  X  uppercase
  *  c  characters
  *  C  verbose characters
  *  e  use C style escapes (with -C)
