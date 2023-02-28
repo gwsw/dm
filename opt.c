@@ -616,7 +616,7 @@ usage(char *s)
 	if (s != NULL)
 		fprintf(stderr, "dm: %s\n", s);
 
-	fprintf(stderr, "usage: dm [-n#][-v][-f#][-F#][-V] [-a<fmt>] [[-+]<fmt>]... [file]...\n");
+	fprintf(stderr, "usage: dm [-n#][-v][-E][-f#][-F#][-V] [-a<fmt>] [[-+]<fmt>]... [file]...\n");
 	fprintf(stderr, "      -n#      bytes per line\n");
 	fprintf(stderr, "      -v       don't skip repeated lines\n");
 	fprintf(stderr, "      -E       print extra newline to separate line groups\n");
@@ -635,7 +635,7 @@ usage(char *s)
 	fprintf(stderr, "      -l 32-bit    -u UTF-8/dot   -o  octal      -p# printing width #\n");
 	fprintf(stderr, "      -L 64-bit    -U UTF-8/num   -r# radix #    -,# comma every # digits\n");
 	fprintf(stderr, "      -s signed    -e C-escape    -X  uppercase  -.# dot every # digits\n");
-	fprintf(stderr, "      -Q big-end   -m mnemonic                   -k  colored\n");
-	fprintf(stderr, "      -q little-end\n");
+	fprintf(stderr, "      -Q big-end%s  -m mnemonic                   -k  colored\n", bigendian ? "*" : " ");
+	fprintf(stderr, "      -q little-end%s\n", bigendian ? " " : "*");
 	exit(1);
 }
