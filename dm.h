@@ -19,6 +19,9 @@ typedef unsigned short     u16;
 typedef unsigned int       u32;
 typedef unsigned long long u64;
 
+#define UTF_ERROR   -1
+#define UTF_CONTIN  -2
+
 /*
  * Max number of formats.
  */
@@ -77,7 +80,9 @@ void printbuf(struct format *f, u8 *buf, int size, int len);
 void prstring(char *s);
 void usage(char *s);
 int defwidth(int radix, int size, int comma);
-int is_wide_char(unsigned long ch);
 int utf8_size(u8 ch);
 int utf8_is_contin(u8 ch);
 int utf8_value(u8 *buf, int *plen);
+int utf8_is_wide(unsigned long ch);
+int utf8_is_printable(unsigned long ch);
+void utf8_encode(int value, u8 *buf, int *plen);

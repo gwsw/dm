@@ -240,9 +240,21 @@ option(char *s)
 	case 'X': /* Use uppercase for alphabetic digits */
 		flags |= UPPERCASE;
 		break;
-	case 'U': /* UTF-8 */
-		flags |= UTF_8;
+	case 'u': /* UTF-8 chars */
+		if (size)
+			usage(DUP_SIZE);
+		if (radix)
+			usage(DUP_RADIX);
+		radix = 1;
 		size = -1; // variable size
+		inter = "";
+		flags |= UTF_8;
+		break;
+	case 'U': /* UTF-8 codepoints */
+		if (size)
+			usage(DUP_SIZE);
+		size = -1; // variable size
+		flags |= UTF_8|ASCHAR;
 		break;
 	case 'v':
 		verbose = 1;
@@ -275,7 +287,7 @@ option(char *s)
 		usage("illegal option letter");
 	}
 	if (radix == 0)
-		radix = (flags & UTF_8) ? 1 : 16;
+		radix = 16;
 
 	if (optchar == '=')
 	{
@@ -308,7 +320,7 @@ option(char *s)
 		 * We take care of that later, in fixaformat().
 		 */
 		f = &aformat;
-		if (radix == 1 || (flags & (ASCHAR|MNEMONIC|CSTYLE)))
+		if (radix == 1 || (flags & (ASCHAR|UTF_8|MNEMONIC|CSTYLE)))
 			usage("invalid option used with -a");
 		zwidth = 0;
 	} else
@@ -323,7 +335,7 @@ option(char *s)
 		if (comma == 0)
 			comma = def.comma;
 		flags |= def.flags;
-		if (radix == 1 || (flags & ASCHAR))
+		if (radix == 1 || (flags & (ASCHAR|UTF_8)))
 			flags &= ~SIGNED;
 		if (after == NULL)
 			after = "\n";
@@ -354,17 +366,6 @@ option(char *s)
 				 * display C style mnemonics.
 				 */
 				zwidth = width = 2;
-			if (flags & UTF_8) {
-				if (radix == 1) {
-					if (width < 2) {
-						/*
-						 * Need at least 2 printing positions to
-						 * display (double-wide) UTF-8 chars.
-						 */
-						zwidth = width = 2;
-					}
-				}
-			}
 		}
 
 		/*
@@ -510,7 +511,7 @@ adjcol(void)
 				width8 = 8 / psize;
 				f->width = (maxwidth8 / width8) - 
 						strlen(f->inter);
-				if (strlen(f->inter) == 0 && f->width > 1 && !(f->flags & UTF_8))
+				if (strlen(f->inter) == 0 && f->width > 1)
 				{
 					/*
 					 * Ugly kludge to handle characters:

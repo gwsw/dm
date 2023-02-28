@@ -24,8 +24,6 @@ static void printitem(struct format *f, number num);
 static char * prchar(struct format *f, number num, int *widthp);
 static char * prnum(struct format *f, number num, int *widthp);
 static char * prcharnum(struct format *f, number num, int *widthp);
-static int print_utf8_char(struct format *f, u8 *buf);
-static int print_utf8_num(struct format *f, u8 *buf);
 static void prspaces(int n);
 extern int bigendian;
 
@@ -63,7 +61,6 @@ printbuf(struct format *f, u8 *buf, int size, int len)
 {
 	number num;
 	int i;
-	int skip = 0;
 
 	if (f->flags & NOPRINT)
 		/*
@@ -74,35 +71,36 @@ printbuf(struct format *f, u8 *buf, int size, int len)
 		return;
 
 	while (size > 0) {
-		char isize = (f->size > 0) ? f->size : 1;
+		int isize = (f->size > 0) ? f->size : 1;
+		int spec_char = 0;
 		if (len <= 0) {
 			/* No more data in the buffer; just print spaces. */
 			prspaces(f->width);
-		} else if (skip > 0) {
-			char contin[] = { PR_CONTIN, '\0' };
-			prjust(f, contin, 1);
-			isize = 0;
-			--skip;
-		} else if (f->flags & UTF_8) {
-			/* Extract next UTF-8 char and print it. */
-			if (f->radix == 1) {
-				print_utf8_char(f, buf);
-				isize = 1; /* just count 1 so we print the continuation bytes */
-			} else {
-				isize = print_utf8_num(f, buf);
-			}
-			skip = isize - 1;
 		} else {
 			/* Extract the next number and print it. */
 			num.u = 0;
-			if (bigendian) { // FIXME (f->flags & BIGENDIAN)
+			if (f->flags & UTF_8) {
+				int usize = len;
+				int uvalue = utf8_value(buf, &usize);
+				if (uvalue == UTF_CONTIN)
+					spec_char = PR_CONTIN;
+				else if (uvalue == UTF_ERROR)
+					spec_char = PR_MALFORMED;
+				else
+					num.u = uvalue;
+			} else if (bigendian) { // FIXME (f->flags & BIGENDIAN)
 				for (i = 0;  i < isize;  i++)
 					num.u = (256 * num.u) + buf[i];
 			} else {
 				for (i = isize-1;  i >= 0;  i--)
 					num.u = (256 * num.u) + buf[i];
 			}
-			printitem(f, num);
+			if (spec_char) {
+				char buf[] = { spec_char, '\0' };
+				prjust(f, buf, strlen(buf));
+			} else {
+				printitem(f, num);
+			}
 		}
 		buf += isize;
 		len -= isize;
@@ -129,75 +127,11 @@ printitem(struct format *f, number num)
 	/*
 	 * Get the printable form of the item.
 	 */
-	if (f->radix == 1 || (f->flags & (ASCHAR|UTF_8)))
+	if (f->radix == 1 || (f->flags & ASCHAR))
 		s = prchar(f, num, &width);
 	else
 		s = prnum(f, num, &width);
 	prjust(f, s, width);
-}
-
-/*
- * Print multibyte UTF-8 char.
- */
-	static int
-print_utf8_char(struct format *f, u8 *buf)
-{
-	u8 obytes[8];
-	int b = 0;
-	char *out = (char *) obytes;
-	int uvalue = 0;
-	int usize = 1;
-	int width = 1;
-	if (utf8_is_contin(buf[0])) {
-		obytes[b++] = uvalue = PR_CONTIN;
-	} else { /* print full (multibyte) UTF-8 char */
-		usize = sizeof(buf);
-		uvalue = utf8_value(buf, &usize);
-		if (uvalue < 0) {
-			obytes[b++] = PR_MALFORMED;
-		} else if (uvalue < SP) {
-			number num;
-			num.u = uvalue;
-			out = prcharnum(f, num, NULL);
-			width = strlen(out);
-		} else {
-			memcpy(obytes, buf, usize);
-			b = usize;
-			width = is_wide_char(uvalue) ? 2 : 1;
-		}
-	}
-	obytes[b] = '\0';
-	prjust(f, out, width);
-	return usize;
-}
-
-/*
- * Print multibyte UTF-8 char.
- */
-	static int
-print_utf8_num(struct format *f, u8 *buf)
-{
-	char out[64];
-	int usize;
-	if (utf8_is_contin(buf[0])) {
-		out[0] = PR_CONTIN;
-		out[1] = '\0';
-		usize = 1;
-	} else {
-		number num;
-		usize = sizeof(buf);
-		int uvalue = utf8_value(buf, &usize);
-		if (uvalue < 0) {
-			usize = 1;
-			num.u = buf[0];
-			snprintf(out, sizeof(out), "<%s>?", prnum(f, num, NULL));
-		} else {
-			num.u = uvalue;
-			snprintf(out, sizeof(out), "%s", prnum(f, num, NULL));
-		}
-	}
-	prjust(f, out, strlen(out));
-	return usize;
 }
 
 /*
@@ -311,11 +245,8 @@ static char *cstyle[] =
 	static char *
 prcharnum(struct format *f, number num, int *widthp)
 {
-	struct format cformat;
-
-	cformat = *f;
+	struct format cformat = *f;
 	cformat.size = 1;
-	cformat.radix = 16;
 	cformat.flags = ZEROPAD | (f->flags & (UPPERCASE));
 	return (prnum(&cformat, num, widthp));
 }
@@ -326,16 +257,16 @@ prcharnum(struct format *f, number num, int *widthp)
 	static char *
 prchar(struct format *f, number num, int *widthp)
 {
-	int n;
-	static char buf[2];
+	int n = num.u;
+	static char buf[8];
 
 	/* if (f->flags & SIGNED) panic("prchar signed"); */
-	n = num.u & 0xFF;
 
-	if (n >= SP && n < DEL) {
-		/* Printable character. */
-		buf[0] = n;
-		buf[1] = '\0';
+	int printable = (f->flags & UTF_8) ? utf8_is_printable(n) : (n >= 0x20 && n < 0x7f);
+	if (printable) {
+		int len;
+		utf8_encode(n, buf, &len);
+		buf[len] = '\0';
 		*widthp = 1;
 		return (buf);
 	}
@@ -419,14 +350,10 @@ maxi(int size)
 	int
 ndigits(int radix, int size)
 {
-	unsigned long long n;
-	int ndig;
-
-	if (radix == 1)
-		/* Single character display */
+	if (radix == 1) /* Single character display */
 		return (1);
-
-	n = maxi(size);
+	unsigned long long n = maxi(size);
+	int ndig;
 	for (ndig = 0;  n != 0;  ndig++, n /= radix)
 		continue;
 	return (ndig);

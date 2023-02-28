@@ -59,11 +59,9 @@ Dump in radix #, where # is a decimal number
 between 2 and 36.
 Digits between 10 and 35 are represented by the letters a - z
 (or A - Z if -u is specified).
-.IP u
+.IP X
 Use uppercase letters for digits between 10 and 35.
 The default is to use lowercase.
-.IP X
-Same as xu.
 .IP c
 Dump as ASCII characters.
 Each non-printable character is printed as a period.
@@ -99,14 +97,12 @@ Escape sequences are used for the following characters:
 .fi
 Other non-printables are printed as numbers, or, if the -m flag
 is also given, as ASCII mnemonics if possible.
-.IP U
+.IP u
 Print as UTF-8 characters.
 A multibyte character is printed in the position of its first byte.
 Continuation bytes are printed as underscores.
-.IP Ud
-Print as UTF-8 decimal values.
-.IP Ux
-Print as UTF-8 hex values.
+.IP U
+Print UTF-8 codepoint values as hexadecimal.
 .IP s
 Treat each number as signed.
 The default is to treat each number as unsigned.
