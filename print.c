@@ -104,6 +104,7 @@ printbuf(struct format *f, u8 *buf, ssize_t size, ssize_t len, ssize_t rlen)
 					spec_char = PR_MALFORMED;
 				else
 					num.u = uvalue;
+					/* Don't set isize=usize, because we want to dump the contin bytes */
 			} else  {
 				if ((f->flags & DM_BIG_ENDIAN) || (!(f->flags & DM_LITTLE_ENDIAN) && bigendian)) {
 					for (i = 0;  i < isize;  i++)
@@ -287,7 +288,7 @@ prchar(struct format *f, number num, int *widthp)
 		int len;
 		utf8_encode(n, (u8*) buf, &len);
 		buf[len] = '\0';
-		*widthp = 1; /* not len, because we want to dump the contin bytes */
+		*widthp = utf8_is_wide(n) ? 2 : 1;
 		return (buf);
 	} else if ((f->flags & ASCHAR) == 0) {
 		/* Just print non-printables as ".". */
@@ -298,7 +299,7 @@ prchar(struct format *f, number num, int *widthp)
 		s = cstyle[n];
 	} else if ((f->flags & MNEMONIC) && n < TABLESIZE(aschar)) {
 		/* Special mnemonic ASCII form for certain non-printables. */
-		s =  aschar[n];
+		s = aschar[n];
 	} else if ((f->flags & MNEMONIC) && n == DEL) {
 		/* Special mnemonic ASCII form; special case for DEL. */
 		s = "DEL";
@@ -312,7 +313,6 @@ prchar(struct format *f, number num, int *widthp)
 		strcpy(buf, s);
 	return buf;
 }
-
 
 /*
  * Print n spaces.
