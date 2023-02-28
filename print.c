@@ -200,8 +200,7 @@ prnum(struct format *f, number num, int *widthp)
 	do {
 		digits[d++] = unum % f->radix;
 		unum /= f->radix;
-		if (--comma <= 0)
-		{
+		if (--comma <= 0) {
 			digits[d++] = DCOMMA;
 			comma = f->comma;
 		}

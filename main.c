@@ -110,14 +110,12 @@ dumpfile(char *filename)
 		addr = 0;
 	} else if (readoffset) {
 		/* Advance by reading. */
-		for (addr = 0;  addr < fileoffset;  addr += len)
-		{
+		for (addr = 0;  addr < fileoffset;  addr += len) {
 			len = (size_t) (fileoffset - addr);
 			if (len > sizeof(buf))
 				len = sizeof(buf);
 			len = fread(buf, sizeof(char), len, f);
-			if (len <= 0)
-			{
+			if (len <= 0) {
 				fprintf(stderr, "cannot read to %ld in %s\n",
 					(long) fileoffset, filename);
 				return;
@@ -125,8 +123,7 @@ dumpfile(char *filename)
 		}
 	} else {
 		/* Advance by seeking. */
-		if (fseek(f, (long) fileoffset, 0))
-		{
+		if (fseek(f, (long) fileoffset, 0)) {
 			fprintf(stderr, "cannot seek to %ld in %s\n",
 				(long) fileoffset, filename);
 			return;

@@ -83,8 +83,7 @@ is_in_table(unsigned long ch, struct wchar_range_table *table)
 		return 0;
 	lo = 0;
 	hi = table->count - 1;
-	while (lo <= hi)
-	{
+	while (lo <= hi) {
 		int mid = (lo + hi) / 2;
 		if (ch > table->table[mid].last)
 			lo = mid + 1;
