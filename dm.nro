@@ -48,7 +48,7 @@ Dump in decimal.
 Dump in radix #, where # is a decimal number
 between 2 and 36.
 Digits between 10 and 35 are represented by the letters a \- z
-(or A \- Z if \-u is specified).
+(or A \- Z if \-X is specified).
 .IP X
 Use uppercase letters for digits between 10 and 35.
 The default is to use lowercase.
@@ -57,42 +57,73 @@ Dump as ASCII characters.
 Each non-printable character is printed as a period.
 .IP C
 Dump as ASCII characters.
-Each non-printable character is printed as the hex value of the
-character.
+Each non-printable character is printed as the hex value of the character.
 However, if a radix is specified (via \-d, \-o or \-r),
 that radix is used (instead of hex) to display the non-printable characters.
-.IP m
-Used with \-C,
-causes certain non-printable
-characters (namely, those between 0x00 and 0x20, as well as 0x7F),
-to be displayed using ASCII mnemonic names, such as "ESC" for 0x1B.
-Other non-printables (0x80 \- 0xFF) are still printed as hex numbers.
-The character 0x0C, usually called "FF" (form feed) is displayed
-as "NP" (new page), to avoid confusion with hex 0xFF.
-The character 0x0A, sometimes called "LF" (line feed) is displayed
-as "NL" (new line), for no good reason.
 .IP e
 Used with \-C,
 causes certain non-printable characters to be printed as escape sequences,
 similar to the backslash escape sequences used in the C language.
 Escape sequences are used for the following characters:
 .nf
-\\0   0x00  NUL
-\\b   0x08  BS
-\\e   0x1B  ESC
-\\f   0x0C  NP
-\\n   0x0A  NL
-\\r   0x0D  CR
-\\t   0x09  HT
+0x00  \\0
+0x08  \\b
+0x1B  \\e
+0x0C  \\f
+0x0A  \\n
+0x0D  \\r
+0x09  \\t
 .fi
 Other non-printables are printed as numbers, or, if the \-m flag
 is also given, as ASCII mnemonics if possible.
+.IP m
+Used with \-C,
+causes certain non-printable characters to be printed as mnemonic names:
+.nf
+0x00  NUL
+0x01  SOH
+0x02  STX
+0x03  ETX
+0x04  EOT
+0x05  ENQ
+0x06  ACK
+0x07  BEL
+0x08  BS
+0x09  HT
+0x0a  NL
+0x0b  VT
+0x0c  NP
+0x0d  CR
+0x0e  SO
+0x0f  SI
+0x10  DLE
+0x11  DC1
+0x12  DC2
+0x13  DC3
+0x14  DC4
+0x15  NAK
+0x16  SYN
+0x17  ETB
+0x18  CAN
+0x19  EM
+0x1a  SUB
+0x1b  ESC
+0x1c  FS
+0x1d  GS
+0x1e  RS
+0x1f  US
+0x7F  DEL
+.fi
 .IP u
-Print as UTF-8 characters.
+Dump as UTF-8 characters.
 A multibyte character is printed in the position of its first byte.
+Each non-printable character is printed as a period.
 Continuation bytes are printed as underscores.
 .IP U
-Print UTF-8 codepoint values as hexadecimal.
+Dump as UTF-8 characters.
+Each non-printable character is printed as the value of the codepoint of the character.
+If a radix is specified (via \-d, \-o or \-r),
+all characters (not just non-printable ones) are printed as the value of the codepoint character.
 .IP s
 Treat each number as signed.
 The default is to treat each number as unsigned.
@@ -101,7 +132,7 @@ Treat each number as little-endian.
 .IP Q
 Treat each number as big-endian.
 If neither \-q nor \-Q is specified, numbers are treated
-as having the same endianness as the running computer.
+as having the same endianness as the host computer.
 .IP j
 Left justify each number in the display.
 The default is to right justify.
@@ -133,9 +164,9 @@ The size of addresses is always longwords and cannot be changed.
 The option \-aN will suppress addresses.
 
 .PP
-Only one of b,w,l,c,C may be specified in any single format option.
+Only one of b,w,l,L,c,C,u,U may be specified in any single format option.
 If none are specified, the default is l (unless changed by a \-- option).
-Only one of x,o,d,r,c may be specified in any single format option.
+Only one of x,d,o,r,c,u may be specified in any single format option.
 If none are specified, the default is x (unless changed by a \-- option).
 .PP
 These are the global options (not part of a format):
