@@ -116,7 +116,7 @@ printbuf(struct format *f, u8 *buf, int size, int len)
 				char spec_str[] = { spec_char, '\0' };
 				char buf[64];
 				strcpy_color(buf, spec_str);
-				prjust(f, buf, strlen(buf));
+				prjust(f, buf, strlen(spec_str));
 			} else {
 				printitem(f, num);
 			}
