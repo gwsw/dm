@@ -73,7 +73,7 @@ prjust(struct format *f, char *s, int width)
  * rlen is the amount of data actually in the buffer; may exceed size.
  */
 	void
-printbuf(struct format *f, u8 *buf, size_t size, size_t len, size_t rlen)
+printbuf(struct format *f, u8 *buf, ssize_t size, ssize_t len, ssize_t rlen)
 {
 	number num;
 	int i;

@@ -81,14 +81,11 @@ utf8_is_contin(u8 ch)
 	static int
 is_in_table(unsigned long ch, struct wchar_range_table *table)
 {
-	int hi;
-	int lo;
-
 	/* Binary search in the table. */
 	if (table->table == NULL || table->count == 0 || ch < table->table[0].first)
 		return 0;
-	lo = 0;
-	hi = table->count - 1;
+	int lo = 0;
+	int hi = table->count - 1;
 	while (lo <= hi) {
 		int mid = (lo + hi) / 2;
 		if (ch > table->table[mid].last)
@@ -107,9 +104,28 @@ is_in_table(unsigned long ch, struct wchar_range_table *table)
 #define DECLARE_RANGE_TABLE_END(name) \
 	}; struct wchar_range_table name##_table = { name##_array, sizeof(name##_array)/sizeof(*name##_array) };
 
+DECLARE_RANGE_TABLE_START(compose)
+#include "compose.uni"
+DECLARE_RANGE_TABLE_END(compose)
+
+DECLARE_RANGE_TABLE_START(ubin)
+#include "ubin.uni"
+DECLARE_RANGE_TABLE_END(ubin)
+
 DECLARE_RANGE_TABLE_START(wide)
 #include "wide.uni"
 DECLARE_RANGE_TABLE_END(wide)
+
+DECLARE_RANGE_TABLE_START(fmt)
+#include "fmt.uni"
+DECLARE_RANGE_TABLE_END(fmt)
+
+DECLARE_RANGE_TABLE_START(comb)
+	{ 0x0622, 0x0623 },
+	{ 0x0625, 0x0625 },
+	{ 0x0627, 0x0627 },
+	{ 0x0644, 0x0644 },
+DECLARE_RANGE_TABLE_END(comb)
 
 	int
 utf8_is_wide(unsigned long ch)
@@ -120,6 +136,10 @@ utf8_is_wide(unsigned long ch)
 	int
 utf8_is_printable(unsigned long ch)
 {
-return ch >= 0x20;
-	return ch >= ' ' && ch < 0x7f;
+	if (ch < 0x20) return 0;
+	return 
+		!is_in_table(ch, &compose_table) &&
+		!is_in_table(ch, &fmt_table) &&
+		!is_in_table(ch, &ubin_table) &&
+		!is_in_table(ch, &comb_table);
 }

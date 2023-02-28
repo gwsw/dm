@@ -23,12 +23,6 @@ and the plus format is used as the second format.
 If an option begins with two minus signs, it does not set up
 a format, but rather changes the defaults for any following formats.
 .PP
-Numbers entered on the command line
-are decimal by default, but may be preceeded by 0 to make them octal,
-or 0x to make them hexadecimal.
-In addition, a number may be followed by a "k" to multiply it by 1024, or
-by "m" to multiply it by 1024*1024, or by "g" to multiply it by 1024*1024*1024.
-.PP
 Formats may include the following option letters:
 .IP b
 Dump bytes.
@@ -78,7 +72,7 @@ Other non-printables are printed as numbers, or, if the \-m flag
 is also given, as ASCII mnemonics if possible.
 .IP m
 Used with \-C,
-causes certain non-printable characters to be printed as mnemonic names:
+causes certain non-printable characters to be printed as ASCII mnemonic names:
 .nf
 0x00  NUL
 0x01  SOH
@@ -183,6 +177,10 @@ Prints an extra newline after all formats have been
 printed for each line.
 .IP \-f#
 Specifies an offset in the file from which to start dumping.
+The number is decimal by default, but may be preceeded by 0 to make it octal,
+or 0x to make it hexadecimal.
+In addition, a number may be followed by a "k" to multiply it by 1024, or
+by "m" to multiply it by 1024*1024, or by "g" to multiply it by 1024*1024*1024.
 .B dm
 will seek to this offset before beginning to dump data.
 .IP \-F#

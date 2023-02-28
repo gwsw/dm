@@ -125,13 +125,13 @@ option(char *s)
 	int width;
 	int zwidth;
 	int comma;
-	char optchar;
+	char optchar = '\0';
 	char *after;
 	char *inter;
 
-	if (*s == '-') {
+	if (*s == '-' || *s == '+') {
 		optchar = *s++;
-		if (*s == '-') {
+		if (optchar == '-' && *s == '-') {
 			/*
 			 * Option starts with double "-".
 			 */
@@ -292,7 +292,7 @@ option(char *s)
 	case '?':
 		usage(NULL);
 	default:
-		usage("illegal option letter");
+{ char buf[64]; snprintf(buf, sizeof(buf), "illegal option letter -%c", s[-1]); usage(buf); }
 	}
 	if (radix == 0)
 		radix = 16;
