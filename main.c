@@ -25,6 +25,7 @@
  *  ,# insert commas every # digits
  *  .# insert periods every # digits
  *  a  format applies to file addresses
+ *  k  use color
  * Generally, each command line option sets up one display format.
  */
 

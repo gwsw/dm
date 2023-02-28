@@ -13,6 +13,7 @@ int verbose = 0;                /* Show all data */
 long fileoffset = 0L;           /* Starting offset in the input file */
 int readoffset = 0;             /* Read rather than seek to fileoffset */
 int bigendian = 0;
+int color = 0;                  /* Color the output */
 
 /*
  * The "default" format.
@@ -190,6 +191,9 @@ option(char *s)
 	case 'j': /* Left justify */
 		flags |= LEFTJUST;
 		break;
+	case 'k': /* Use color */
+		color = 1;
+		break;
 	case 'l': /* 32 bit size */
 		if (size)
 			usage(DUP_SIZE);
@@ -222,10 +226,10 @@ option(char *s)
 		width = getint(&s);
 		break;
 	case 'q':
-		bigendian = 0;
+		flags |= DM_LITTLE_ENDIAN;
 		break;
 	case 'Q':
-		bigendian = 1;
+		flags |= DM_BIG_ENDIAN;
 		break;
 	case 'r': /* Set arbitrary radix */
 		if (radix)
@@ -620,22 +624,25 @@ usage(char *s)
 	if (s != NULL)
 		fprintf(stderr, "dm: %s\n", s);
 
-	fprintf(stderr, "usage: dm [-n#][-v][-f#][-F#] [--<fmt>] [-aN<fmt>] [[-+]<fmt>]... [file]...\n");
-	fprintf(stderr, "    <fmt> is:\n");
-	fprintf(stderr, "      -b 8-bit    -c char/dot   -x  hex        -j  left justify\n");
-	fprintf(stderr, "      -w 16-bit   -C char/num   -d  decimal    -z  zero pad\n");
-	fprintf(stderr, "      -l 32-bit   -m mnemonic   -o  octal      -p# printing width #\n");
-	fprintf(stderr, "      -L 64-bit   -e C-escape   -r# radix #    -,# comma every # digits\n");
-	fprintf(stderr, "      -s signed   -U[dx] UTF-8  -u  uppercase  -.# dot every # digits\n");
-	fprintf(stderr, "\n");
+	fprintf(stderr, "usage: dm [-n#][-v][-f#][-F#][-V] [-a<fmt>] [[-+]<fmt>]... [file]...\n");
 	fprintf(stderr, "      -n#      bytes per line\n");
 	fprintf(stderr, "      -v       don't skip repeated lines\n");
 	fprintf(stderr, "      -f#      skip to offset #\n");
 	fprintf(stderr, "      -F#      seek to offset #\n");
-	fprintf(stderr, "      -a<fmt>  address format\n");
+	fprintf(stderr, "      +<fmt>   print on same line\n");
+	fprintf(stderr, "      -<fmt>   print on new line\n");
+	fprintf(stderr, "      -a<fmt>  format of addresses\n");
 	fprintf(stderr, "      -aN      suppress addresses\n");
-	fprintf(stderr, "      +<fmt>   format on same line\n");
-	fprintf(stderr, "      -<fmt>   format on new line\n");
 	fprintf(stderr, "      --<fmt>  set default format\n");
+	fprintf(stderr, "      -V       print version number\n");
+	fprintf(stderr, "\n");
+	fprintf(stderr, "    <fmt> is:\n");
+	fprintf(stderr, "      -b 8-bit     -c ASCII/dot   -x  hex        -j  left justify\n");
+	fprintf(stderr, "      -w 16-bit    -C ASCII/num   -d  decimal    -z  zero pad\n");
+	fprintf(stderr, "      -l 32-bit    -u UTF-8/dot   -o  octal      -p# printing width #\n");
+	fprintf(stderr, "      -L 64-bit    -U UTF-8/num   -r# radix #    -,# comma every # digits\n");
+	fprintf(stderr, "      -s signed    -e C-escape    -X  uppercase  -.# dot every # digits\n");
+	fprintf(stderr, "      -Q big-end   -m mnemonic                   -k  colored\n");
+	fprintf(stderr, "      -q little-end\n");
 	exit(1);
 }

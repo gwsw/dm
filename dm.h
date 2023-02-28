@@ -59,17 +59,18 @@ struct format
 };
 
 /* Flags */
-#define	SIGNED		(1<< 0)  /* Interpret numbers as signed */
-#define	LEFTJUST	(1<< 1)  /* Left justify in output */
-#define	ZEROPAD		(1<< 2)  /* Pad with zeros */
-#define	NOPRINT		(1<< 3)  /* Don't display at all */
-#define	UPPERCASE	(1<< 4)  /* Uppercase hex letters */
-#define	ASCHAR		(1<< 5)  /* Verbose ASCII */
-#define	MNEMONIC	(1<< 6)  /* Mnemonic ASCII */
-#define	CSTYLE		(1<< 7)  /* Alternate mnemonic ASCII */
-#define	DOTCOMMA	(1<< 8)  /* Print dots (periods) instead of commas */
-#define	BIGENDIAN	(1<< 9)  /* */
-#define	UTF_8		(1<< 10) /* UTF-8 */
+#define SIGNED           (1<< 0)  /* Interpret numbers as signed */
+#define LEFTJUST         (1<< 1)  /* Left justify in output */
+#define ZEROPAD          (1<< 2)  /* Pad with zeros */
+#define NOPRINT          (1<< 3)  /* Don't display at all */
+#define UPPERCASE        (1<< 4)  /* Uppercase hex letters */
+#define ASCHAR           (1<< 5)  /* Verbose ASCII */
+#define MNEMONIC         (1<< 6)  /* Mnemonic ASCII */
+#define CSTYLE           (1<< 7)  /* Alternate mnemonic ASCII */
+#define DOTCOMMA         (1<< 8)  /* Print dots (periods) instead of commas */
+#define DM_BIG_ENDIAN    (1<< 9)  /* Big-endian */
+#define DM_LITTLE_ENDIAN (1<< 10) /* Little-endian */
+#define UTF_8            (1<< 11) /* UTF-8 */
 
 void dumpfile(char *filename);
 int ndigits(int radix, int size);

@@ -26,6 +26,21 @@ static char * prnum(struct format *f, number num, int *widthp);
 static char * prcharnum(struct format *f, number num, int *widthp);
 static void prspaces(int n);
 extern int bigendian;
+extern int color;
+
+static char * color_ctl = "\e[33m";
+static char * color_normal = "\e[m";
+
+	static void
+strcpy_color(char *buf, char *s)
+{
+	buf[0] = '\0';
+	if (color)
+		strcat(buf, color_ctl);
+	strcat(buf, s);
+	if (color)
+		strcat(buf, color_normal);
+}
 
 /*
  * Print a string.
@@ -88,15 +103,19 @@ printbuf(struct format *f, u8 *buf, int size, int len)
 					spec_char = PR_MALFORMED;
 				else
 					num.u = uvalue;
-			} else if (bigendian) { // FIXME (f->flags & BIGENDIAN)
-				for (i = 0;  i < isize;  i++)
-					num.u = (256 * num.u) + buf[i];
-			} else {
-				for (i = isize-1;  i >= 0;  i--)
-					num.u = (256 * num.u) + buf[i];
+			} else  {
+				if ((f->flags & DM_BIG_ENDIAN) || (!(f->flags & DM_LITTLE_ENDIAN) && bigendian)) {
+					for (i = 0;  i < isize;  i++)
+						num.u = (256 * num.u) + buf[i];
+				} else {
+					for (i = isize-1;  i >= 0;  i--)
+						num.u = (256 * num.u) + buf[i];
+				}
 			}
 			if (spec_char) {
-				char buf[] = { spec_char, '\0' };
+				char spec_str[] = { spec_char, '\0' };
+				char buf[64];
+				strcpy_color(buf, spec_str);
 				prjust(f, buf, strlen(buf));
 			} else {
 				printitem(f, num);
@@ -258,7 +277,8 @@ prcharnum(struct format *f, number num, int *widthp)
 prchar(struct format *f, number num, int *widthp)
 {
 	int n = num.u;
-	static char buf[8];
+	static char buf[64];
+	char *s;
 
 	/* if (f->flags & SIGNED) panic("prchar signed"); */
 
@@ -273,33 +293,25 @@ prchar(struct format *f, number num, int *widthp)
 
 	if ((f->flags & ASCHAR) == 0) {
 		/* Just print non-printables as ".". */
-		buf[0] = '.';
-		buf[1] = '\0';
-		*widthp = 1;
-		return (buf);
-	}
-
-	if ((f->flags & CSTYLE) &&
+		s = ".";
+	} else if ((f->flags & CSTYLE) &&
 		n < TABLESIZE(cstyle) && cstyle[n] != NULL) {
 		/* C-style escape sequences for certain non-printables. */
-		*widthp = strlen(cstyle[n]);
-		return (cstyle[n]);
-	}
-
-	if ((f->flags & MNEMONIC) && n < TABLESIZE(aschar)) {
+		s = cstyle[n];
+	} else if ((f->flags & MNEMONIC) && n < TABLESIZE(aschar)) {
 		/* Special mnemonic ASCII form for certain non-printables. */
-		*widthp = strlen(aschar[n]);
-		return (aschar[n]);
-	}
-
-	if ((f->flags & MNEMONIC) && n == DEL) {
+		s =  aschar[n];
+	} else if ((f->flags & MNEMONIC) && n == DEL) {
 		/* Special mnemonic ASCII form; special case for DEL. */
-		*widthp = 3;
-		return ("DEL");
+		s = "DEL";
+	} else {
+		s = prcharnum(f, num, widthp);
 	}
-
-	return prcharnum(f, num, widthp);
+	*widthp = strlen(s);
+	strcpy_color(buf, s);
+	return buf;
 }
+
 
 /*
  * Print n spaces.
