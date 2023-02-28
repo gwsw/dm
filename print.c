@@ -165,7 +165,6 @@ prnum(struct format *f, number num, int *widthp)
 	char *s;
 	int d;
 	int v;
-	int width;
 	int comma;
 	int neg;
 	char digits[70];
@@ -191,11 +190,7 @@ prnum(struct format *f, number num, int *widthp)
 	 * (if we are zero padding) we reach the maximum width.
 	 * Always get at least one digit, even if the number is zero.
 	 */
-	if (f->flags & ZEROPAD)
-		width = f->zwidth;
-	else
-		width = 0;
-
+	int width = (f->flags & UTF_8) ? 4 : (f->flags & ZEROPAD) ? f->zwidth : 0;
 	d = 0;
 	if ((comma = f->comma) == 0)
 		comma = 10000; /* more than the possible number of digits */
@@ -267,7 +262,7 @@ prcodept(struct format *f, number num, int *widthp)
 {
 	struct format cformat = *f;
 	cformat.size = 1;
-	cformat.flags = ZEROPAD | (f->flags & (UPPERCASE));
+	cformat.flags = ZEROPAD | (f->flags & (UPPERCASE|UTF_8));
 	return prnum(&cformat, num, widthp);
 }
 
@@ -280,12 +275,14 @@ prchar(struct format *f, number num, int *widthp)
 	unsigned n = num.u;
 	char *s;
 	static char buf[64];
+	int set_color = color;
 
 	/* if (f->flags & SIGNED) panic("prchar signed"); */
 	int printable = (f->flags & UTF_8) ? utf8_is_printable(n) : (n >= 0x20 && n < 0x7f);
 
 	if (f->flags & DM_CODEPT) {
 		s = prcodept(f, num, widthp);
+		set_color = 0;
 	} else if (printable) {
 		int len;
 		utf8_encode(n, (u8*) buf, &len);
@@ -309,7 +306,10 @@ prchar(struct format *f, number num, int *widthp)
 		s = prcodept(f, num, widthp);
 	}
 	*widthp = strlen(s);
-	strcpy_color(buf, s);
+	if (set_color)
+		strcpy_color(buf, s);
+	else
+		strcpy(buf, s);
 	return buf;
 }
 
