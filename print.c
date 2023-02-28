@@ -23,7 +23,7 @@ typedef union {
 static void printitem(struct format *f, number num);
 static char * prchar(struct format *f, number num, int *widthp);
 static char * prnum(struct format *f, number num, int *widthp);
-static char * prcharnum(struct format *f, number num, int *widthp);
+static char * prcodept(struct format *f, number num, int *widthp);
 static void prspaces(int n);
 extern int bigendian;
 extern int color;
@@ -68,11 +68,12 @@ prjust(struct format *f, char *s, int width)
 
 /*
  * Print a buffer of data according to a given format.
- * size is the full size of the buffer.
- * len is the amount of data actually in the buffer.
+ * size is the nominal size of the buffer; the amount to print.
+ * len is
+ * rlen is the amount of data actually in the buffer; may exceed size.
  */
 	void
-printbuf(struct format *f, u8 *buf, int size, int len)
+printbuf(struct format *f, u8 *buf, size_t size, size_t len, size_t rlen)
 {
 	number num;
 	int i;
@@ -95,7 +96,7 @@ printbuf(struct format *f, u8 *buf, int size, int len)
 			/* Extract the next number and print it. */
 			num.u = 0;
 			if (f->flags & UTF_8) {
-				int usize = len;
+				int usize = rlen;
 				int uvalue = utf8_value(buf, &usize);
 				if (uvalue == UTF_CONTIN)
 					spec_char = PR_CONTIN;
@@ -122,8 +123,9 @@ printbuf(struct format *f, u8 *buf, int size, int len)
 			}
 		}
 		buf += isize;
-		len -= isize;
 		size -= isize;
+		len -= isize;
+		rlen -= isize;
 		/*
 		 * If there is another number after this one,
 		 * print the "inter" string.
@@ -261,7 +263,7 @@ static char *cstyle[] =
  * Print a character as a number.
  */
 	static char *
-prcharnum(struct format *f, number num, int *widthp)
+prcodept(struct format *f, number num, int *widthp)
 {
 	struct format cformat = *f;
 	cformat.size = 1;
@@ -281,16 +283,15 @@ prchar(struct format *f, number num, int *widthp)
 
 	/* if (f->flags & SIGNED) panic("prchar signed"); */
 	int printable = (f->flags & UTF_8) ? utf8_is_printable(n) : (n >= 0x20 && n < 0x7f);
-	if (printable) {
-		int len;
-		utf8_encode(n, buf, &len);
-		buf[len] = '\0';
-		*widthp = 1;
-		return (buf);
-	}
 
 	if (f->flags & DM_CODEPT) {
-		s = prcharnum(f, num, widthp);
+		s = prcodept(f, num, widthp);
+	} else if (printable) {
+		int len;
+		utf8_encode(n, (u8*) buf, &len);
+		buf[len] = '\0';
+		*widthp = 1; /* not len, because we want to dump the contin bytes */
+		return (buf);
 	} else if ((f->flags & ASCHAR) == 0) {
 		/* Just print non-printables as ".". */
 		s = ".";
@@ -305,7 +306,7 @@ prchar(struct format *f, number num, int *widthp)
 		/* Special mnemonic ASCII form; special case for DEL. */
 		s = "DEL";
 	} else {
-		s = prcharnum(f, num, widthp);
+		s = prcodept(f, num, widthp);
 	}
 	*widthp = strlen(s);
 	strcpy_color(buf, s);

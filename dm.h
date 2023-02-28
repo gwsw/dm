@@ -78,7 +78,7 @@ int ndigits(int radix, int size);
 void option(char *s);
 int options(int argc, char *argv[]);
 void panic(char *s);
-void printbuf(struct format *f, u8 *buf, int size, int len);
+void printbuf(struct format *f, u8 *buf, size_t size, size_t len, size_t rlen);
 void prstring(char *s);
 void usage(char *s);
 int defwidth(int radix, int size, int comma);

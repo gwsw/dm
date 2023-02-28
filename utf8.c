@@ -17,6 +17,9 @@ utf8_size(u8 ch)
 		UTF_ERROR;
 }
 
+/*
+ * plen [in/out]
+ */
 	int
 utf8_value(u8 *buf, int *plen)
 {
@@ -43,6 +46,9 @@ utf8_value(u8 *buf, int *plen)
 	return uvalue;
 }
 
+/*
+ * plen [out]
+ */
 	void
 utf8_encode(int value, u8 *buf, int *plen)
 {

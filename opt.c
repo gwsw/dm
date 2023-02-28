@@ -14,6 +14,7 @@ long fileoffset = 0L;           /* Starting offset in the input file */
 int readoffset = 0;             /* Read rather than seek to fileoffset */
 int bigendian = 0;
 int color = 0;                  /* Color the output */
+int group_line = 0;             /* Extra newline after each line group */
 
 /*
  * The "default" format.
@@ -176,6 +177,9 @@ option(char *s)
 		if (radix)
 			usage(DUP_RADIX);
 		radix = 10;
+		break;
+	case 'E':
+		group_line = 1;
 		break;
 	case 'e': /* Print C style escape sequences for characters */
 		flags |= CSTYLE;
@@ -615,6 +619,7 @@ usage(char *s)
 	fprintf(stderr, "usage: dm [-n#][-v][-f#][-F#][-V] [-a<fmt>] [[-+]<fmt>]... [file]...\n");
 	fprintf(stderr, "      -n#      bytes per line\n");
 	fprintf(stderr, "      -v       don't skip repeated lines\n");
+	fprintf(stderr, "      -E       print extra newline to separate line groups\n");
 	fprintf(stderr, "      -f#      skip to offset #\n");
 	fprintf(stderr, "      -F#      seek to offset #\n");
 	fprintf(stderr, "      +<fmt>   print on same line\n");

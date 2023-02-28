@@ -41,6 +41,7 @@ extern int verbose;
 extern off_t fileoffset;
 extern int readoffset;
 extern int bigendian;
+extern int group_line;
 
 	static int
 is_bigendian(void)
@@ -80,9 +81,7 @@ main(int argc, char *argv[])
 dumpfile(char *filename)
 {
 	FILE *f;
-	size_t len;
 	size_t last_len = 0;
-	size_t bufdata;
 	size_t rextra = 6;
 	int didstar = 0;
 	off_t addr;
@@ -110,6 +109,7 @@ dumpfile(char *filename)
 		addr = 0;
 	} else if (readoffset) {
 		/* Advance by reading. */
+		size_t len = 0;
 		for (addr = 0;  addr < fileoffset;  addr += len) {
 			len = (size_t) (fileoffset - addr);
 			if (len > sizeof(buf))
@@ -132,7 +132,7 @@ dumpfile(char *filename)
 	}
 
 	firstaddr = addr;
-	bufdata = 0;
+	size_t bufdata = 0;
 	for (;; addr += count) {
 		if (bufdata < count) {
 			bufdata = 0;
@@ -147,11 +147,13 @@ dumpfile(char *filename)
 		/* Fill the unused bytes with 0. */
 		if (bufdata < count)
 			memset(&buf[bufdata], 0, count-bufdata);
-		len = bufdata;
-		if (len > count) len = count;
+		/* line_len is amount to print on this line.
+		 * Normally line_len==count unless there is not enough data in buf. */
+		size_t line_len = bufdata;
+		if (line_len > count) line_len = count;
 		/* Duplicate of the previous line? */
 		if (!verbose && addr != firstaddr && 
-				len == last_len && eqbuf(buf, lastbuf, len)) {
+				line_len == last_len && eqbuf(buf, lastbuf, line_len)) {
 			/* Just print an asterisk (unless we've already done so). */
 			if (!didstar)
 				prstring("*\n");
@@ -159,20 +161,22 @@ dumpfile(char *filename)
 			continue;
 		}
 		didstar = 0;
-		last_len = len;
+		last_len = line_len;
 		/* Remember the current buffer. */
-		memcpy(lastbuf, buf, len);
+		memcpy(lastbuf, buf, line_len);
 
 		/* Print the address, in the address format. */
-		printbuf(&aformat, (u8*) &addr, sizeof(addr), sizeof(addr));
+		printbuf(&aformat, (u8*) &addr, sizeof(addr), sizeof(addr), sizeof(addr));
 
 		/* Print the data, in all formats. */
 		int fx;
 		for (fx = 0;  fx < nformat;  fx++)
-			printbuf(&format[fx], (u8*) buf, count, len);
+			printbuf(&format[fx], (u8*) buf, count, line_len, bufdata);
+		if (group_line)
+			prstring("\n");
 	}
 	/* Print the final address. */
-	printbuf(&aformat, (u8*) &addr, sizeof(addr), sizeof(addr));
+	printbuf(&aformat, (u8*) &addr, sizeof(addr), sizeof(addr), sizeof(addr));
 	prstring("\n");
 	fclose(f);
 }
