@@ -266,7 +266,7 @@ prcharnum(struct format *f, number num, int *widthp)
 	struct format cformat = *f;
 	cformat.size = 1;
 	cformat.flags = ZEROPAD | (f->flags & (UPPERCASE));
-	return (prnum(&cformat, num, widthp));
+	return prnum(&cformat, num, widthp);
 }
 
 /*
@@ -275,12 +275,11 @@ prcharnum(struct format *f, number num, int *widthp)
 	static char *
 prchar(struct format *f, number num, int *widthp)
 {
-	int n = num.u;
-	static char buf[64];
+	unsigned n = num.u;
 	char *s;
+	static char buf[64];
 
 	/* if (f->flags & SIGNED) panic("prchar signed"); */
-
 	int printable = (f->flags & UTF_8) ? utf8_is_printable(n) : (n >= 0x20 && n < 0x7f);
 	if (printable) {
 		int len;
@@ -290,7 +289,9 @@ prchar(struct format *f, number num, int *widthp)
 		return (buf);
 	}
 
-	if ((f->flags & ASCHAR) == 0) {
+	if (f->flags & DM_CODEPT) {
+		s = prcharnum(f, num, widthp);
+	} else if ((f->flags & ASCHAR) == 0) {
 		/* Just print non-printables as ".". */
 		s = ".";
 	} else if ((f->flags & CSTYLE) &&

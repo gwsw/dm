@@ -292,6 +292,8 @@ option(char *s)
 	}
 	if (radix == 0)
 		radix = 16;
+	else if ((flags & (UTF_8|ASCHAR)) == (UTF_8|ASCHAR)) // specified -U and a radix
+		flags |= DM_CODEPT;
 
 	if (optchar == '=') {
 		/*

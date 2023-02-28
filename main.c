@@ -11,11 +11,11 @@
  *  o  octal
  *  d  decimal
  *  r# radix #
- *  u  UTF-8 chars
- *  U  UTF-8 values
  *  X  uppercase
- *  c  characters
- *  C  verbose characters
+ *  c  ASCII
+ *  C  detailed ASCII
+ *  u  UTF-8
+ *  U  detailed UTF-8 
  *  e  use C style escapes (with -C)
  *  m  use ASCII mnemonics (with -C)
  *  s  signed

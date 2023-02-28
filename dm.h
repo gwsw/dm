@@ -70,7 +70,8 @@ struct format
 #define DOTCOMMA         (1<< 8)  /* Print dots (periods) instead of commas */
 #define DM_BIG_ENDIAN    (1<< 9)  /* Big-endian */
 #define DM_LITTLE_ENDIAN (1<< 10) /* Little-endian */
-#define UTF_8            (1<< 11) /* UTF-8 */
+#define UTF_8            (1<< 11) /* UTF-8 chars */
+#define DM_CODEPT        (1<< 12) /* UTF-8 codepoints */
 
 void dumpfile(char *filename);
 int ndigits(int radix, int size);
