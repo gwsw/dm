@@ -9,23 +9,6 @@ dumps a file in one or more formats, as specified by the format
 argument(s).
 If no filenames are specified, standard input is read and dumped.
 If the -V option is specified, the version number is printed.
-By default, the file is dumped 16 bytes per line.
-The -n option may specify a different number of bytes per line.
-By default, display lines that are identical to the previous displayed
-line are not displayed; instead a "*" is displayed to indicate
-missing repeated lines.
-The -v option overrides this and causes all data to be displayed.
-The -f option may specify an offset in the file from which
-to start dumping.
-.B dm
-will seek to this offset before beginning to dump data.
-The -F option is like -f, but the offset is reached by reading
-thru the file rather than seeking.
-Numbers entered on the command line
-are decimal by default, but may be preceeded by 0 to make them octal,
-or 0x to make them hexadecimal.
-In addition, a number may be followed by a "k" to multiply it by 1024, or
-by "m" to multiply it by 1024*1024, or by "g" to multiply it by 1024*1024*1024.
 .PP
 Each format option begins with either a minus sign or a plus sign.
 If a format begins with a plus sign, it is displayed on the same
@@ -37,7 +20,12 @@ a default format (-x) is used as the first format,
 and the plus format is used as the second format.
 If an option begins with two minus signs, it does not set up
 a format, but rather changes the defaults for any following formats.
-See the examples below.
+.PP
+Numbers entered on the command line
+are decimal by default, but may be preceeded by 0 to make them octal,
+or 0x to make them hexadecimal.
+In addition, a number may be followed by a "k" to multiply it by 1024, or
+by "m" to multiply it by 1024*1024, or by "g" to multiply it by 1024*1024*1024.
 .PP
 Formats may include the following option letters:
 .IP b
@@ -126,6 +114,8 @@ largest possible number of the given radix and size (byte,word,long).
 The -p option will never cause truncation of the displayed number,
 so a number may exceed the specified width;
 this may disrupt the columnar alignment of the output.
+.IP k
+Apply color to nonprintable and invalid characters in the output.
 .IP a
 Specifies that this format applies to the file ADDRESSES in the display,
 rather than the data items.
@@ -138,6 +128,19 @@ Only one of b,w,l,c,C may be specified in any single format option.
 If none are specified, the default is l (unless changed by a -- option).
 Only one of x,o,d,r,c may be specified in any single format option.
 If none are specified, the default is x (unless changed by a -- option).
+.PP
+By default, the file is dumped 16 bytes per line.
+The -n option may specify a different number of bytes per line.
+By default, display lines that are identical to the previous displayed
+line are not displayed; instead a "*" is displayed to indicate
+missing repeated lines.
+The -v option overrides this and causes all data to be displayed.
+The -f option may specify an offset in the file from which
+to start dumping.
+.B dm
+will seek to this offset before beginning to dump data.
+The -F option is like -f, but the offset is reached by reading
+thru the file rather than seeking.
 .SH "EXAMPLES"
 .IP "dm file"
 Dump the file as hex longs.
