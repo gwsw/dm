@@ -51,8 +51,7 @@ options(int argc, char *argv[])
 {
 	char *s;
 
-	while (--argc > 0)
-	{
+	while (--argc > 0) {
 		s = *++argv;
 		if (*s != '-' && *s != '+')
 			break;
@@ -129,14 +128,15 @@ option(char *s)
 	char *after;
 	char *inter;
 
-	optchar = *s++;
-	if (*s == '-')
-	{
-		/*
-		 * Option starts with double "-".
-		 */
-		optchar = '=';
-		s++;
+	if (*s == '-') {
+		optchar = *s++;
+		if (*s == '-') {
+			/*
+			 * Option starts with double "-".
+			 */
+			optchar = '=';
+			s++;
+		}
 	}
 	flags = 0;
 	size = 0;
@@ -293,8 +293,7 @@ option(char *s)
 	if (radix == 0)
 		radix = 16;
 
-	if (optchar == '=')
-	{
+	if (optchar == '=') {
 		/*
 		 * The option started with "--".
 		 * Just change some defaults; don't set up a format.
@@ -317,8 +316,7 @@ option(char *s)
 	/*
 	 * Set up the format structure.
 	 */
-	if (addr)
-	{
+	if (addr) {
 		/*
 		 * Don't fill in any defaults for the address format.
 		 * We take care of that later, in fixaformat().
@@ -327,8 +325,7 @@ option(char *s)
 		if (radix == 1 || (flags & (ASCHAR|UTF_8|MNEMONIC|CSTYLE)))
 			usage("invalid option used with -a");
 		zwidth = 0;
-	} else
-	{
+	} else {
 		/*
 		 * Fill in defaults for anything not specified.
 		 */
@@ -346,8 +343,7 @@ option(char *s)
 		if (inter == NULL)
 			inter = " ";
 		zwidth = defwidth(radix, size, comma);
-		if (width == 0)
-		{
+		if (width == 0) {
 			/*
 			 * Set up printing width to be just big enough to
 			 * hold the widest string we'll ever need to print.
@@ -380,14 +376,12 @@ option(char *s)
 		 * Any format immediately to the right of a column 0
 		 * format is column 1, and so on.
 		 */
-		if (nformat == 0)
-		{
+		if (nformat == 0) {
 			/*
 			 * The column of the first format must be 0.
 			 */
 			format[nformat].col = 0;
-		} else if (optchar == '+')
-		{
+		} else if (optchar == '+') {
 			/*
 			 * Display NEXT TO the previous format.
 			 * Set the previous format's "after" string
@@ -396,8 +390,7 @@ option(char *s)
 			 */
 			format[nformat-1].after = "   ";
 			format[nformat].col = format[nformat-1].col + 1;
-		} else
-		{
+		} else {
 			/*
 			 * Display UNDER the previous format
 			 * (that is, at the start of the next line).
@@ -463,8 +456,7 @@ adjcol(void)
 	int maxwidth8;
 	int width8;
 
-	for (col = 0; ; col++)
-	{
+	for (col = 0; ; col++) {
 		/*
 		 * Find the smallest size and the largest width in this column.
 		 * Actually, we don't look at the width, but the width8:
@@ -478,8 +470,7 @@ adjcol(void)
 		maxwidth8 = 0;
 
 		for (f = format;  f < &format[nformat];  f++)
-			if (f->col == col)
-			{
+			if (f->col == col) {
 				int psize = (f->size > 0) ? f->size : 1;
 				found++;
 				if (psize < minsize)
@@ -510,13 +501,11 @@ adjcol(void)
 		 */
 		for (f = format;  f < &format[nformat];  f++) {
 			int psize = (f->size > 0) ? f->size : 1;
-			if (f->col == col)
-			{
+			if (f->col == col) {
 				width8 = 8 / psize;
 				f->width = (maxwidth8 / width8) - 
 						strlen(f->inter);
-				if (strlen(f->inter) == 0 && f->width > 1)
-				{
+				if (strlen(f->inter) == 0 && f->width > 1) {
 					/*
 					 * Ugly kludge to handle characters:
 					 * Normally, -c format has the inter
@@ -566,16 +555,14 @@ getlong(char **ss)
 	 */
 	radix = 10;
 
-	if (*s == '0' && s[1] != '\0')
-	{
+	if (*s == '0' && s[1] != '\0') {
 		/*
 		 * If it starts with a 0, we use an alternate radix.
 		 * Plain zero means octal.  0x means hex.
 		 */
 		s++;
 		radix = 8;
-		if (*s == 'x' || *s == 'X')
-		{
+		if (*s == 'x' || *s == 'X') {
 			s++;
 			radix = 16;
 		}
@@ -585,8 +572,7 @@ getlong(char **ss)
 	 * Parse the digits of the number.
 	 */
 	n = 0;
-	while ((v = gdigit(*s)) >= 0 && v < radix)
-	{
+	while ((v = gdigit(*s)) >= 0 && v < radix) {
 		n = (radix * n) + v;
 		s++;
 	}

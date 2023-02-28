@@ -30,6 +30,7 @@
  */
 
 #include <stdio.h>
+#include <stdlib.h>
 #include "dm.h"
 
 extern int nformat;
@@ -51,14 +52,17 @@ is_bigendian(void)
 	int
 main(int argc, char *argv[])
 {
-	int arg;
-
 	bigendian = is_bigendian();
-	arg = options(argc, argv);
+	int arg = options(argc, argv);
 	if (nformat == 0) {
-		/* Use default format. */
-		option("-xb");
-		option("+c");
+		char *dm = getenv("DM");
+		if (dm != NULL) {
+			option(dm);
+		} else {
+			/* Use default format. */
+			option("-xb");
+			option("+c");
+		}
 	}
 	if (arg == 0)
 		/* Standard input */

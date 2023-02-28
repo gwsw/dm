@@ -175,6 +175,9 @@ Same as the previous example.
 Note that the \--oz option changes the default radix to octal
 and sets up zero padding by default for the following options.
 This applies to the address format as well as all data formats.
+.SH "ENVIRONMENT VARIABLES"
+If the "DM" environment variable is set,
+it is parsed as a command line option if there are no real command line options.
 .SH "SEE ALSO"
 od(1)
 .SH BUGS
